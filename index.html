@@ -21,7 +21,6 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 斷捨離極簡配色方案 */
         :root {
             --color-bg: #FAF9F6;       
             --color-text: #2C2926;     
@@ -30,7 +29,6 @@
             --color-accent-light: #D5D1C8; 
         }
 
-        /* 狀態標籤 */
         .status-badge {
             font-size: 10px;
             letter-spacing: 0.1em;
@@ -40,7 +38,6 @@
             white-space: nowrap;
         }
 
-        /* 載入動畫微調 */
         .loader {
             border: 2px solid var(--color-accent-light); 
             border-radius: 50%; 
@@ -50,7 +47,6 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* 頁籤樣式優化 */
         .tab-active { 
             border-bottom: 2px solid var(--color-accent); 
             color: var(--color-text); 
@@ -61,12 +57,10 @@
             border-bottom: 2px solid transparent;
         }
 
-        /* 清單項目懸停 */
         .list-item-hover:hover {
             background-color: rgba(213, 209, 200, 0.2);
         }
 
-        /* 客製化按鈕 (條列式專用) */
         .ghost-btn {
             background-color: transparent;
             border: 1px solid var(--color-accent-light);
@@ -90,7 +84,6 @@
             font-weight: 500;
         }
 
-        /* 彈跳視窗動畫 */
         .modal-enter {
             opacity: 0;
             transform: scale(0.95) translateY(10px);
@@ -101,26 +94,51 @@
             transform: scale(1) translateY(0);
         }
 
-        /* 表格樣式 */
-        .minimal-table th {
-            font-weight: 500;
-            color: var(--color-text-light);
-            border-bottom: 1px solid var(--color-accent-light);
-            padding-bottom: 8px;
+        /* 大綱美化專用樣式 */
+        .outline-section-title {
+            background-color: var(--color-text);
+            color: var(--color-bg);
+            padding: 2px 10px;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            border-radius: 2px;
+            display: inline-block;
+            margin-bottom: 8px;
+            margin-top: 16px;
         }
-        .minimal-table td {
-            padding: 16px 8px;
-            border-bottom: 1px solid rgba(213, 209, 200, 0.3);
-            vertical-align: top;
-            color: var(--color-text);
+        .outline-label {
+            font-size: 10px;
+            color: var(--color-accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+            margin-top: 12px;
+        }
+        .outline-visual-box {
+            background-color: #F3F1EC;
+            padding: 12px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 8px;
+            color: var(--color-text-light);
+        }
+        .outline-dialogue-box {
+            background-color: rgba(122, 110, 96, 0.08);
+            border-left: 3px solid var(--color-accent);
+            padding: 12px 16px;
+            font-size: 15px;
+            font-style: italic;
             line-height: 1.8;
+            color: var(--color-text);
         }
 
-        /* 自定義捲動條 */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--color-accent-light); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
     </style>
 </head>
 <body class="pb-32 selection:bg-[#D5D1C8] selection:text-[#2C2926]">
@@ -140,8 +158,8 @@
                 <button id="admin-login-btn" onclick="showLoginInput()" class="text-xs text-[#5C5851] hover:text-[#2C2926] py-2 px-4 transition-all flex items-center justify-center mx-auto gap-2 tracking-widest">
                     <i class="fa-solid fa-key text-[10px]"></i> 管理員登入
                 </button>
-                <div id="admin-input-area" class="hidden animate-fade-in mt-4">
-                    <div class="flex items-center gap-0 border-b border-[#D5D1C8] focus-within:border-[#7A6E60] transition-all pb-1 mx-8">
+                <div id="admin-input-area" class="hidden mt-4">
+                    <div class="flex items-center gap-0 border-b border-[#D5D1C8] focus-within:border-[#7A6E60] pb-1 mx-8">
                         <input type="password" id="admin-pass" placeholder="輸入通行碼" class="flex-1 bg-transparent text-[#2C2926] text-sm focus:outline-none block px-2 py-2 text-center tracking-widest font-light">
                         <button onclick="submitAdminLogin()" class="text-[#7A6E60] hover:text-[#2C2926] px-3 py-2 transition-colors">
                             <i class="fa-solid fa-arrow-right-long"></i>
@@ -164,7 +182,6 @@
                 </span>
             </div>
 
-            <!-- 客戶篩選 -->
             <div class="flex items-center space-x-4 mb-4" id="filter-container">
                 <span class="text-xs text-[#5C5851] font-light tracking-widest">客戶</span>
                 <div class="relative flex-1 max-w-[200px] group">
@@ -179,23 +196,23 @@
 
             <div class="flex mt-2 gap-8 border-b border-[#D5D1C8]/50">
                 <button onclick="switchTab('select')" id="tab-select" class="pb-3 text-sm tab-active transition-all relative flex items-center justify-center gap-2 tracking-widest uppercase">
-                    我要選題 <span id="count-select" class="text-[#7A6E60] text-[10px] font-medium">0</span>
+                    我要選題 <span id="count-select" class="text-[#7A6E60] text-[10px] font-medium ml-1">0</span>
                 </button>
                 <button onclick="switchTab('progress')" id="tab-progress" class="pb-3 text-sm tab-inactive transition-all relative flex items-center justify-center gap-2 tracking-widest uppercase">
-                    製作進度 <span id="count-progress" class="text-[#5C5851] text-[10px] font-medium">0</span>
+                    製作進度 <span id="count-progress" class="text-[#5C5851] text-[10px] font-medium ml-1">0</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 歡迎詞區塊 -->
+    <!-- 歡迎詞 -->
     <div id="welcome-banner" class="max-w-4xl mx-auto px-6 mt-10 mb-6 hidden">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
-                <h2 class="text-xl mb-2 tracking-wider flex items-center gap-2 serif-font font-normal text-[#2C2926]">
+                <h2 class="text-xl mb-2 tracking-wider serif-font font-normal text-[#2C2926]">
                     Hi, <span id="client-name-display" class="text-[#7A6E60] font-medium"></span> 
                 </h2>
-                <p id="banner-desc" class="text-[#5C5851] text-xs font-light tracking-widest">"真實的瑕疵，遠勝過精緻的虛假。"</p>
+                <p class="text-[#5C5851] text-xs font-light tracking-widest">"真實的瑕疵，遠勝過精緻的虛假。"</p>
             </div>
             <button id="share-link-btn" onclick="copyClientLink()" class="hidden sm:inline-flex ghost-btn px-4 py-2 items-center tracking-widest w-fit">
                 <i class="fa-solid fa-link mr-2 text-[10px]"></i> 複製專屬連結
@@ -203,37 +220,9 @@
         </div>
     </div>
 
-    <!-- 主要內容區 -->
+    <!-- 主要內容 -->
     <div class="max-w-4xl mx-auto px-6 mt-6 transition-all duration-500 pb-20">
         <div id="card-container" class="flex flex-col"></div>
-    </div>
-
-    <!-- 彈跳視窗 (Modal) -->
-    <div id="global-modal" class="fixed inset-0 z-[60] hidden">
-        <div class="absolute inset-0 bg-[#2C2926]/40 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
-        <div class="absolute inset-0 flex items-center justify-center p-4 md:p-6 pointer-events-none">
-            <div id="modal-content-wrapper" class="bg-[#FAF9F6] w-full max-w-3xl max-h-[85vh] flex flex-col rounded-sm shadow-2xl pointer-events-auto modal-enter border border-[#D5D1C8]">
-                <div class="flex items-center justify-between px-6 py-5 border-b border-[#D5D1C8]/50 bg-[#FAF9F6] z-10 sticky top-0 rounded-t-sm">
-                    <h3 id="modal-title" class="text-lg text-[#2C2926] serif-font font-medium tracking-widest">標題</h3>
-                    <button onclick="closeModal()" class="text-[#5C5851] hover:text-[#2C2926] transition-colors p-2">
-                        <i class="fa-solid fa-xmark text-lg"></i>
-                    </button>
-                </div>
-                <div id="modal-body" class="p-6 md:p-8 overflow-y-auto text-[#2C2926] font-normal text-[14px] leading-loose tracking-wide"></div>
-                <div id="modal-footer" class="hidden px-6 py-4 border-t border-[#D5D1C8]/50 bg-[#F3F1EC]/50 flex justify-end sticky bottom-0 rounded-b-sm">
-                    <button id="modal-action-btn" class="ghost-btn primary px-6 py-2">操作按鈕</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 空狀態 -->
-    <div id="empty-state" class="hidden text-center mt-24 px-6">
-        <div class="relative inline-flex items-center justify-center mb-6 opacity-40">
-            <i class="fa-brands fa-envira text-[#7A6E60] text-4xl"></i>
-        </div>
-        <h3 class="text-lg text-[#2C2926] mb-3 serif-font font-medium tracking-widest">無需掛心</h3>
-        <p class="text-[#5C5851] text-xs font-normal tracking-wide">目前沒有需要處理的項目，請享受當下的寧靜。</p>
     </div>
 
     <!-- 底部操作區 -->
@@ -242,7 +231,7 @@
             <div class="bg-[#FAF9F6]/95 backdrop-blur-md border-t border-[#D5D1C8] px-6 py-4 flex items-center justify-between gap-6 shadow-[0_-10px_30px_rgba(250,249,246,0.8)]">
                 <div class="flex items-center gap-4">
                     <span class="text-[11px] text-[#5C5851] tracking-[0.2em] font-medium uppercase">已選項目</span>
-                    <span id="selected-count" class="text-xl text-[#7A6E60] font-medium serif-font w-4 text-center">0</span>
+                    <span id="selected-count" class="text-xl text-[#7A6E60] font-medium serif-font">0</span>
                 </div>
                 <button onclick="submitSelection()" id="submit-btn" class="max-w-[200px] w-full bg-[#7A6E60] text-[#FAF9F6] hover:bg-[#5C5851] py-3 px-6 transition-all text-[12px] tracking-widest font-medium">
                     確認送出選題
@@ -251,8 +240,26 @@
         </div>
     </div>
 
-    <!-- Toast -->
-    <div id="toast" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-[#2C2926] text-[#FAF9F6] px-6 py-3 opacity-0 pointer-events-none transition-all duration-500 z-[70] font-normal flex items-center gap-3 tracking-widest text-[13px] shadow-lg shadow-black/10 rounded-sm"></div>
+    <!-- 彈跳視窗 -->
+    <div id="global-modal" class="fixed inset-0 z-[60] hidden">
+        <div class="absolute inset-0 bg-[#2C2926]/40 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4 md:p-6 pointer-events-none">
+            <div id="modal-content-wrapper" class="bg-[#FAF9F6] w-full max-w-3xl max-h-[85vh] flex flex-col rounded-sm shadow-2xl pointer-events-auto modal-enter border border-[#D5D1C8]">
+                <div class="flex items-center justify-between px-6 py-5 border-b border-[#D5D1C8]/50 bg-[#FAF9F6] z-10 sticky top-0">
+                    <h3 id="modal-title" class="text-lg text-[#2C2926] serif-font font-medium tracking-widest">標題</h3>
+                    <button onclick="closeModal()" class="text-[#5C5851] hover:text-[#2C2926] transition-colors p-2">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                <div id="modal-body" class="p-6 md:p-8 overflow-y-auto text-[#2C2926] font-normal text-[14px] leading-loose tracking-wide hide-scrollbar"></div>
+                <div id="modal-footer" class="hidden px-6 py-4 border-t border-[#D5D1C8]/50 bg-[#F3F1EC]/50 flex justify-end sticky bottom-0">
+                    <button id="modal-action-btn" class="ghost-btn primary px-6 py-2"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-[#2C2926] text-[#FAF9F6] px-6 py-3 opacity-0 pointer-events-none transition-all duration-500 z-[70] text-[13px] tracking-widest rounded-sm"></div>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycby2ZzPf5pgHLp1V68v4DVPTAfbkmEAs3Nl4LTLYAoOqS_ilbKvNY5LplSwmkX0h_aY9FA/exec"; 
@@ -314,10 +321,9 @@
             try {
                 const response = await fetch(API_URL);
                 const rawData = await response.json();
-                
                 if (Array.isArray(rawData)) {
                     database = rawData.map((item, index) => {
-                        // 強制以 scriptId (F欄) 作為唯一 ID
+                        // 核心識別碼：優先使用腳本編號 (scriptId)
                         item._uid = item.scriptId ? String(item.scriptId).trim() : `temp_${index}`;
                         return item;
                     });
@@ -325,7 +331,7 @@
                 updateStatus(true);
             } catch (error) {
                 updateStatus(false);
-                showToast("連線異常，已載入暫存資料");
+                showToast("連線異常，載入預設資料中");
                 useFallbackData();
             } finally {
                 setTimeout(() => {
@@ -335,15 +341,28 @@
             }
         }
 
+        /* 💡 排序核心：依照客戶編號 (ID) 排序 */
         function generateClientOptions() {
             const select = document.getElementById('client-select');
-            const clients = [...new Set(database
-                .filter(item => item.client || item.storeName)
-                .map(item => (item.client && item.storeName) ? `${item.client} - ${item.storeName}` : (item.client || item.storeName))
-            )];
+            const clientMap = new Map();
+            database.forEach(item => {
+                const name = (item.client && item.storeName) ? `${item.client} ${item.storeName}` : (item.client || item.storeName);
+                if (name && !clientMap.has(name)) {
+                    clientMap.set(name, item.id || ""); // 抓取 A 欄 ID
+                }
+            });
+
+            const sortedClients = Array.from(clientMap.entries()).sort((a, b) => {
+                return a[1].localeCompare(b[1], undefined, {numeric: true, sensitivity: 'base'});
+            });
 
             select.innerHTML = '<option value="all">顯示全部</option>';
-            clients.forEach(c => select.innerHTML += `<option value="${c}">${c}</option>`);
+            sortedClients.forEach(([name, id]) => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.innerText = name;
+                select.appendChild(option);
+            });
         }
 
         function switchTab(tabName) {
@@ -369,12 +388,11 @@
 
         function renderCards() {
             const container = document.getElementById('card-container');
-            const emptyState = document.getElementById('empty-state');
             container.innerHTML = '';
 
             let clientData = database.filter(item => {
                 if (currentClientFilter === 'all') return true;
-                let combo = (item.client && item.storeName) ? `${item.client} - ${item.storeName}` : (item.client || item.storeName || '');
+                let combo = (item.client && item.storeName) ? `${item.client} ${item.storeName}` : (item.client || item.storeName || '');
                 return combo === currentClientFilter;
             });
 
@@ -387,15 +405,16 @@
             if (currentClientFilter !== 'all') {
                 document.getElementById('welcome-banner').classList.remove('hidden');
                 document.getElementById('client-name-display').innerText = currentClientFilter;
+            } else {
+                document.getElementById('welcome-banner').classList.add('hidden');
             }
 
             const filteredData = currentTab === 'select' ? selectData : progressData;
             
             if (filteredData.length === 0) {
-                emptyState.classList.remove('hidden');
+                container.innerHTML = `<p class="mt-20 text-center text-gray-400 font-light tracking-widest">目前沒有內容</p>`;
                 return;
             }
-            emptyState.classList.add('hidden');
 
             filteredData.forEach((item) => {
                 const isSelected = selectedIds.has(item._uid);
@@ -408,20 +427,20 @@
                 }
 
                 let actionsHTML = currentTab === 'select' ? 
-                    `<button onclick="event.stopPropagation(); showDescModal('${item.id}')" class="ghost-btn px-4">重點說明</button>` :
+                    `<button onclick="event.stopPropagation(); showDescModal('${item._uid}')" class="ghost-btn px-4">重點說明</button>` :
                     `<div class="flex gap-2">
-                        <button onclick="showOutlineModal('${item.id}')" class="ghost-btn ${item.outline ? 'primary' : 'opacity-40'}">腳本大綱</button>
-                        <button onclick="showCaptionModal('${item.id}')" class="ghost-btn ${item.caption ? 'primary' : 'opacity-40'}">貼文文案</button>
+                        <button onclick="showOutlineModal('${item._uid}')" class="ghost-btn ${item.outline ? 'primary' : 'opacity-40'}">腳本大綱</button>
+                        <button onclick="showCaptionModal('${item._uid}')" class="ghost-btn ${item.caption ? 'primary' : 'opacity-40'}">貼文文案</button>
                         ${item.videoUrl ? `<a href="${item.videoUrl}" target="_blank" class="ghost-btn primary">觀看影片</a>` : ''}
                     </div>`;
 
                 container.innerHTML += `
                     <div onclick="${currentTab === 'select' ? `toggleCard('${item._uid}')` : ''}" class="list-item-hover flex flex-col md:flex-row md:items-center py-5 px-2 border-b border-[#D5D1C8]/40 ${currentTab === 'select' ? 'cursor-pointer' : ''}">
-                        <div class="flex items-center gap-4 flex-1">
-                            <div class="w-10 flex justify-center">${leftColHTML}</div>
+                        <div class="flex items-start md:items-center gap-4 flex-1">
+                            <div class="w-10 flex justify-center shrink-0 mt-1 md:mt-0">${leftColHTML}</div>
                             <h3 class="text-[15px] serif-font">${item.scriptId ? `<span class="text-[11px] text-[#5C5851] mr-2">#${item.scriptId}</span>` : ''}${item.title}</h3>
                         </div>
-                        <div class="mt-4 md:mt-0 pl-14 md:pl-0">${actionsHTML}</div>
+                        <div class="mt-4 md:mt-0 pl-14 md:pl-0 shrink-0">${actionsHTML}</div>
                     </div>`;
             });
         }
@@ -446,10 +465,8 @@
             btn.disabled = true;
 
             try {
-                // 傳送 uid (即 scriptId) 給後台
                 const payload = { ids: Array.from(selectedIds) };
                 await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                
                 showToast("選擇已傳送至資料庫");
                 database.forEach(i => { if(selectedIds.has(i._uid)) i.userSelected = '選到了'; });
                 selectedIds.clear();
@@ -463,28 +480,88 @@
             }
         }
 
+        function copyToClipboard(text, msg = "已複製") {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast(msg);
+            } catch (err) {
+                if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => showToast(msg)).catch(() => {});
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function copyClientLink() {
+            if (currentClientFilter === 'all') return;
+            const baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            const shareUrl = `${baseUrl}?client=${encodeURIComponent(currentClientFilter)}`;
+            copyToClipboard(shareUrl, "專屬連結已複製");
+        }
+
         function showToast(m) {
             const t = document.getElementById('toast');
             t.innerText = m; t.classList.remove('opacity-0', 'pointer-events-none');
-            setTimeout(() => t.classList.add('opacity-0', 'pointer-events-none'), 4000);
+            setTimeout(() => t.classList.add('opacity-0', 'pointer-events-none'), 3000);
         }
 
-        function showDescModal(id) {
-            const item = database.find(i => i.id === id);
+        function showDescModal(uid) {
+            const item = database.find(i => i._uid === uid);
             if (item) openModal('重點說明', `<div class="whitespace-pre-wrap">${item.desc || '（尚未提供說明）'}</div>`);
         }
 
-        function showCaptionModal(id) {
-            const item = database.find(i => i.id === id);
+        function showCaptionModal(uid) {
+            const item = database.find(i => i._uid === uid);
             if (item && item.caption) {
-                const action = { text: '複製文案', onClick: () => { navigator.clipboard.writeText(item.caption); showToast("文案已複製"); closeModal(); } };
-                openModal('貼文文案', `<div class="whitespace-pre-wrap select-all italic text-[#5C5851]">${item.caption}</div>`, action);
+                const action = { text: '複製文案', onClick: () => { copyToClipboard(item.caption, "文案已複製"); closeModal(); } };
+                openModal('貼文文案', `<div class="whitespace-pre-wrap select-all italic text-[#5C5851] font-light">${item.caption}</div>`, action);
             }
         }
 
-        function showOutlineModal(id) {
-            const item = database.find(i => i.id === id);
-            if (item && item.outline) openModal('腳本大綱', `<div class="whitespace-pre-wrap font-light">${item.outline}</div>`);
+        /* 💡 格式優化：大綱劇本化排版 */
+        function formatOutlineHTML(text) {
+            if (!text) return '<p class="text-gray-400 italic">尚未提供大綱內容</p>';
+            const lines = text.split('\n');
+            let html = '', currentType = null;
+            
+            lines.forEach(line => {
+                let t = line.trim();
+                if (!t) { html += '<div class="h-4"></div>'; return; }
+
+                if (/^(起|承|轉|合|第一幕|第二幕|第三幕|開場|結尾|重點|核心|第[一二三四五]幕)/.test(t)) {
+                    html += `<div class="outline-section-title">${t}</div>`;
+                    currentType = null;
+                } 
+                else if (/^(➤|▶|►|畫面|動作|視覺|鏡頭)/.test(t)) {
+                    let label = t.match(/^(➤|▶|►|畫面|動作|視覺|鏡頭)/)[0];
+                    let content = t.replace(label, '').replace(/[:：]/, '').trim();
+                    html += `<div class="outline-label"><i class="fa-solid fa-camera-retro"></i> 畫面建議</div><div class="outline-visual-box">${content}</div>`;
+                    currentType = 'visual';
+                }
+                else if (/^(💬|台詞|語句|文案|說|OS)/.test(t)) {
+                    let label = t.match(/^(💬|台詞|語句|文案|說|OS)/)[0];
+                    let content = t.replace(label, '').replace(/[:：]/, '').trim();
+                    html += `<div class="outline-label"><i class="fa-solid fa-comment-dots"></i> 參考台詞</div><div class="outline-dialogue-box">${content}</div>`;
+                    currentType = 'dialogue';
+                }
+                else {
+                    if (currentType === 'visual') html += `<div class="outline-visual-box -mt-2">${t}</div>`;
+                    else if (currentType === 'dialogue') html += `<div class="outline-dialogue-box -mt-2">${t}</div>`;
+                    else html += `<p class="mb-3 text-[#5C5851] leading-relaxed font-light">${t}</p>`;
+                }
+            });
+            return `<div class="pb-10">${html}</div>`;
+        }
+
+        function showOutlineModal(uid) {
+            const item = database.find(i => i._uid === uid);
+            if (item && item.outline) openModal('腳本大綱', formatOutlineHTML(String(item.outline)));
         }
 
         function openModal(t, b, a) {
@@ -507,7 +584,7 @@
         }
 
         function useFallbackData() {
-            database = [{ id: "G001", scriptId: "S101", client: "毛貴人", title: "範例主題", status: "未選擇", outline: "範例大綱" }];
+            database = [{ id: "C001", scriptId: "S101", client: "知行者學院", storeName: "中山店", title: "測試主題", status: "未選擇", outline: "起：開場白\n➤ 畫面：拍攝穿搭\n💬 台詞：你好！" }];
             database.forEach(i => i._uid = i.scriptId);
             renderCards();
         }
