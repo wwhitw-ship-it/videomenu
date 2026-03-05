@@ -262,8 +262,8 @@
         <p class="text-[#5C5851] text-xs font-normal tracking-wide">目前沒有需要處理的項目，請享受當下的寧靜。</p>
     </div>
 
-    <!-- 底部操作區 -->
-    <div id="action-bar" class="fixed bottom-0 left-0 right-0 z-40 hidden pointer-events-none">
+    <!-- 底部操作區 (修正預設被隱藏的 Bug) -->
+    <div id="action-bar" class="fixed bottom-0 left-0 right-0 z-40 pointer-events-none">
         <div class="max-w-4xl mx-auto px-0 pointer-events-auto">
             <div class="bg-[#FAF9F6]/95 backdrop-blur-md border-t border-[#D5D1C8] px-6 py-4 flex items-center justify-between gap-6 shadow-[0_-10px_30px_rgba(250,249,246,0.8)]">
                 <div class="flex items-center gap-4">
@@ -302,11 +302,13 @@
                 isAdminMode = false;
                 filterClient(clientParam);
                 document.getElementById('filter-container').style.display = 'none';
+                switchTab('select'); // 確保切換到正確的狀態
             } else if (modeParam === 'admin') {
                 await fetchData();
                 isAdminMode = true;
                 generateClientOptions(); 
                 renderCards();
+                switchTab('select'); // 確保切換到正確的狀態
             } else {
                 document.getElementById('loading-overlay').style.display = 'none';
                 document.getElementById('access-gate').classList.remove('hidden');
@@ -332,6 +334,7 @@
                 await fetchData();
                 generateClientOptions();
                 renderCards();
+                switchTab('select'); // 登入後確保 UI 狀態同步
             } else {
                 errorMsg.classList.remove('hidden');
                 input.value = ""; input.focus();
