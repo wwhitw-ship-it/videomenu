@@ -116,17 +116,6 @@
             line-height: 1.8;
         }
 
-        /* 標籤極簡化 */
-        .tag-base {
-            background-color: transparent;
-            color: var(--color-text-light);
-            border: 1px solid var(--color-accent-light);
-            padding: 2px 8px;
-            font-size: 10px;
-            letter-spacing: 0.1em;
-            border-radius: 2px;
-        }
-
         /* 自定義捲動條 */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -164,7 +153,7 @@
         </div>
     </div>
 
-    <!-- 頂部導航 (Sticky) -->
+    <!-- 頂部導航 -->
     <div id="main-nav" class="sticky top-0 z-40 transition-all pt-6 pb-0 bg-[#FAF9F6]/95 backdrop-blur-md border-b border-[#D5D1C8]/50">
         <div class="max-w-4xl mx-auto px-6">
             <div class="flex justify-between items-end mb-6">
@@ -200,7 +189,7 @@
         </div>
     </div>
 
-    <!-- 歡迎詞區塊 -->
+    <!-- 歡迎詞 -->
     <div id="welcome-banner" class="max-w-4xl mx-auto px-6 mt-10 mb-6 hidden">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
@@ -215,37 +204,28 @@
         </div>
     </div>
 
-    <!-- 主要內容區 (清單容器) -->
+    <!-- 主要內容區 -->
     <div class="max-w-4xl mx-auto px-6 mt-6 transition-all duration-500 pb-20">
-        <!-- 表頭 -->
         <div id="list-header" class="hidden md:flex items-center gap-4 py-2 border-b-2 border-[#D5D1C8] mb-2 px-2">
             <div class="w-8"></div>
             <div class="flex-1 text-[11px] text-[#5C5851] tracking-widest font-medium">主題名稱</div>
             <div id="header-action-text" class="w-64 text-right text-[11px] text-[#5C5851] tracking-widest pr-2 font-medium">說明</div>
         </div>
-        
         <div id="card-container" class="flex flex-col"></div>
     </div>
 
-    <!-- 彈跳視窗 (Modal) -->
+    <!-- 彈跳視窗 -->
     <div id="global-modal" class="fixed inset-0 z-[60] hidden">
-        <!-- 遮罩背景 -->
         <div class="absolute inset-0 bg-[#2C2926]/40 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
-        <!-- 視窗本體 -->
         <div class="absolute inset-0 flex items-center justify-center p-4 md:p-6 pointer-events-none">
             <div id="modal-content-wrapper" class="bg-[#FAF9F6] w-full max-w-3xl max-h-[85vh] flex flex-col rounded-sm shadow-2xl pointer-events-auto modal-enter border border-[#D5D1C8]">
-                <!-- Modal Header -->
                 <div class="flex items-center justify-between px-6 py-5 border-b border-[#D5D1C8]/50 bg-[#FAF9F6] z-10 sticky top-0 rounded-t-sm">
                     <h3 id="modal-title" class="text-lg text-[#2C2926] serif-font font-medium tracking-widest">標題</h3>
                     <button onclick="closeModal()" class="text-[#5C5851] hover:text-[#2C2926] transition-colors p-2">
                         <i class="fa-solid fa-xmark text-lg"></i>
                     </button>
                 </div>
-                <!-- Modal Body -->
-                <div id="modal-body" class="p-6 md:p-8 overflow-y-auto text-[#2C2926] font-normal text-[14px] leading-loose tracking-wide">
-                    <!-- 內容由 JS 注入 -->
-                </div>
-                <!-- Modal Footer -->
+                <div id="modal-body" class="p-6 md:p-8 overflow-y-auto text-[#2C2926] font-normal text-[14px] leading-loose tracking-wide"></div>
                 <div id="modal-footer" class="hidden px-6 py-4 border-t border-[#D5D1C8]/50 bg-[#F3F1EC]/50 flex justify-end sticky bottom-0 rounded-b-sm">
                     <button id="modal-action-btn" class="ghost-btn primary px-6 py-2">操作按鈕</button>
                 </div>
@@ -262,8 +242,8 @@
         <p class="text-[#5C5851] text-xs font-normal tracking-wide">目前沒有需要處理的項目，請享受當下的寧靜。</p>
     </div>
 
-    <!-- 底部操作區 (修正預設被隱藏的 Bug) -->
-    <div id="action-bar" class="fixed bottom-0 left-0 right-0 z-40 pointer-events-none">
+    <!-- 底部操作區 -->
+    <div id="action-bar" class="fixed bottom-0 left-0 right-0 z-40 transition-all duration-300 opacity-0 pointer-events-none transform translate-y-full">
         <div class="max-w-4xl mx-auto px-0 pointer-events-auto">
             <div class="bg-[#FAF9F6]/95 backdrop-blur-md border-t border-[#D5D1C8] px-6 py-4 flex items-center justify-between gap-6 shadow-[0_-10px_30px_rgba(250,249,246,0.8)]">
                 <div class="flex items-center gap-4">
@@ -271,7 +251,7 @@
                     <span id="selected-count" class="text-xl text-[#7A6E60] font-medium serif-font w-4 text-center">0</span>
                 </div>
                 <button onclick="submitSelection()" id="submit-btn" class="max-w-[200px] w-full bg-[#7A6E60] text-[#FAF9F6] hover:bg-[#5C5851] py-3 px-6 transition-all text-[12px] tracking-widest font-medium">
-                    確認送出
+                    確認送出選題
                 </button>
             </div>
         </div>
@@ -281,13 +261,10 @@
     <div id="toast" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-[#2C2926] text-[#FAF9F6] px-6 py-3 opacity-0 pointer-events-none transition-all duration-500 z-[70] font-normal flex items-center gap-3 tracking-widest text-[13px] shadow-lg shadow-black/10 rounded-sm"></div>
 
     <script>
-        // ==========================================
-        // CONFIG: 您的 Google Apps Script 網址
-        // ==========================================
         const API_URL = "https://script.google.com/macros/s/AKfycby2ZzPf5pgHLp1V68v4DVPTAfbkmEAs3Nl4LTLYAoOqS_ilbKvNY5LplSwmkX0h_aY9FA/exec"; 
 
         let database = [];
-        let selectedIds = new Set(); // 現在儲存的是 _uid (腳本編號)
+        let selectedIds = new Set();
         let currentClientFilter = 'all';
         let isAdminMode = false;
         let currentTab = 'select';
@@ -302,13 +279,13 @@
                 isAdminMode = false;
                 filterClient(clientParam);
                 document.getElementById('filter-container').style.display = 'none';
-                switchTab('select'); // 確保切換到正確的狀態
+                switchTab('select');
             } else if (modeParam === 'admin') {
                 await fetchData();
                 isAdminMode = true;
                 generateClientOptions(); 
                 renderCards();
-                switchTab('select'); // 確保切換到正確的狀態
+                switchTab('select');
             } else {
                 document.getElementById('loading-overlay').style.display = 'none';
                 document.getElementById('access-gate').classList.remove('hidden');
@@ -334,7 +311,7 @@
                 await fetchData();
                 generateClientOptions();
                 renderCards();
-                switchTab('select'); // 登入後確保 UI 狀態同步
+                switchTab('select');
             } else {
                 errorMsg.classList.remove('hidden');
                 input.value = ""; input.focus();
@@ -347,19 +324,12 @@
             try {
                 if(!API_URL.startsWith("https://script.google.com")) throw new Error("API URL尚未設定");
                 const response = await fetch(API_URL);
-                
                 const contentType = response.headers.get("content-type");
-                if (contentType && contentType.includes("text/html")) {
-                    console.error("收到 HTML 回應，表示您的 Apps Script 權限設定錯誤或尚未授權。");
-                    throw new Error("Apps Script 拒絕存取，請檢查部署權限是否設為「所有人」。");
-                }
-
+                if (contentType && contentType.includes("text/html")) throw new Error("Apps Script 權限錯誤，請檢查部署設定。");
                 if (!response.ok) throw new Error(`網路回應錯誤 (${response.status})`);
                 const rawData = await response.json();
                 
                 if (Array.isArray(rawData)) {
-                    // 給每個資料配發獨立的 _uid，解決 A 欄重複造成的全選 Bug
-                    // 優先使用腳本編號(scriptId)，若沒有才用原本的 id 加上迴圈數字
                     database = rawData.map((item, index) => {
                         item._uid = item.scriptId ? String(item.scriptId) : `${item.id}_${index}`;
                         return item;
@@ -369,17 +339,10 @@
                 } else {
                     database = [];
                 }
-                
                 updateStatus(true);
             } catch (error) {
-                console.error("🚨 資料抓取失敗細節:", error);
-                
-                let userFriendlyError = error.message;
-                if(error.message && error.message.includes('setHeader is not a function')) {
-                   userFriendlyError = "系統仍讀取到舊版程式碼。請確認您已在 Apps Script 中【新增部署作業】，並將【新的網址】更新到 index.html 中。如果網址沒變，請清除瀏覽器快取。";
-                }
-                
-                showToast(`<i class="fa-solid fa-triangle-exclamation mr-2 text-red-400"></i> ${userFriendlyError}`);
+                console.error("資料抓取失敗:", error);
+                showToast(`無法取得資料: ${error.message}`);
                 useFallbackData();
                 updateStatus(false);
             } finally {
@@ -393,8 +356,6 @@
         function generateClientOptions() {
             const select = document.getElementById('client-select');
             const safeDatabase = Array.isArray(database) ? database : [];
-            
-            // 將「客戶名稱」與「店家名稱」組合成一個選項字串，例如：毛貴人 - 中山店
             const clients = [...new Set(safeDatabase
                 .filter(item => item.client || item.storeName)
                 .map(item => {
@@ -402,7 +363,6 @@
                     return item.client || item.storeName;
                 })
             )];
-
             select.innerHTML = '<option value="all">顯示全部</option>';
             clients.forEach(clientCombo => {
                 const option = document.createElement('option');
@@ -419,14 +379,25 @@
                 if (t === tabName) { btn.classList.add('tab-active'); btn.classList.remove('tab-inactive'); } 
                 else { btn.classList.remove('tab-active'); btn.classList.add('tab-inactive'); }
             });
-            document.getElementById('action-bar').classList.toggle('hidden', tabName !== 'select');
+            
+            // 同步顯示底部操作列
+            updateActionBarVisibility();
             
             const headerActions = document.getElementById('header-action-text');
-            if(headerActions) {
-                headerActions.innerText = tabName === 'select' ? '說明' : '相關資料與進度';
-            }
+            if(headerActions) headerActions.innerText = tabName === 'select' ? '說明' : '相關資料與進度';
             
             renderCards();
+        }
+
+        function updateActionBarVisibility() {
+            const bar = document.getElementById('action-bar');
+            if (currentTab === 'select' && selectedIds.size > 0) {
+                bar.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-full');
+                bar.classList.add('translate-y-0');
+            } else {
+                bar.classList.add('opacity-0', 'pointer-events-none', 'translate-y-full');
+                bar.classList.remove('translate-y-0');
+            }
         }
 
         function renderCards() {
@@ -434,23 +405,15 @@
             const emptyState = document.getElementById('empty-state');
             const welcomeBanner = document.getElementById('welcome-banner');
             const listHeader = document.getElementById('list-header');
-            
             container.innerHTML = '';
 
             const safeDatabase = Array.isArray(database) ? database : [];
-            
-            // 篩選邏輯更新：比對「客戶名稱 - 店家名稱」組合字串
             let clientData = safeDatabase.filter(item => {
                 if (currentClientFilter === 'all') return true;
-                
-                let comboName = '';
-                if (item.client && item.storeName) comboName = `${item.client} - ${item.storeName}`;
-                else comboName = item.client || item.storeName || '';
-                
+                let comboName = (item.client && item.storeName) ? `${item.client} - ${item.storeName}` : (item.client || item.storeName || '');
                 return comboName === currentClientFilter;
             });
 
-            // 過濾邏輯：依照新的狀態字眼區分
             const selectData = clientData.filter(item => (!item.status || item.status === '未選擇') && item.userSelected !== '選到了');
             const progressData = clientData.filter(item => (item.status && item.status !== '未選擇') || item.userSelected === '選到了');
 
@@ -463,7 +426,6 @@
                 welcomeBanner.classList.remove('hidden');
                 document.getElementById('client-name-display').innerText = currentClientFilter;
                 document.getElementById('share-link-btn').classList.toggle('hidden', !isAdminMode);
-                if(isAdminMode) document.getElementById('share-link-btn').classList.add('sm:inline-flex');
             } else {
                 welcomeBanner.classList.add('hidden');
             }
@@ -475,14 +437,10 @@
             } else {
                 emptyState.classList.add('hidden');
                 listHeader.classList.remove('hidden');
-                listHeader.classList.add('md:flex');
             }
 
-            filteredData.forEach((item, index) => {
-                // 使用唯一的 _uid 來判斷是否被選取
+            filteredData.forEach((item) => {
                 const isSelected = selectedIds.has(item._uid);
-                
-                // 1. 左側 Checkbox 或是 狀態標籤
                 let leftColHTML = '';
                 if (currentTab === 'select') {
                     leftColHTML = `
@@ -491,19 +449,14 @@
                         </div>
                     `;
                 } else {
-                    let statusStr = item.status ? String(item.status) : '';
-                    if (!statusStr && item.userSelected === '選到了') statusStr = '等待安排';
-                    
-                    // 新版狀態顏色邏輯
+                    let statusStr = item.status || (item.userSelected === '選到了' ? '等待安排' : '');
                     let statusClass = 'text-[#5C5851] border-[#D5D1C8]'; 
                     if(statusStr.includes('規劃')) statusClass = 'text-[#7A6E60] border-[#D5D1C8]';
                     if(statusStr.includes('剪輯')) statusClass = 'text-[#2C2926] border-[#7A6E60] font-medium';
                     if(statusStr.includes('完成')) statusClass = 'text-[#FAF9F6] bg-[#7A6E60] border-[#7A6E60] font-medium';
-                    
                     leftColHTML = `<span class="status-badge ${statusClass}">${statusStr}</span>`;
                 }
 
-                // 2. 標題 (隱藏客戶名稱與店家名稱，僅顯示腳本編號與標題)
                 const titleHTML = `
                     <div class="flex-1 pr-4">
                         <h3 class="text-[15px] md:text-base text-[#2C2926] serif-font font-medium tracking-wide leading-relaxed">
@@ -513,43 +466,30 @@
                     </div>
                 `;
 
-                // 3. 右側操作按鈕 (手機版均分並排，桌面版靠右)
                 let actionsHTML = '';
                 if (currentTab === 'select') {
                     actionsHTML = `
-                        <div class="flex flex-row w-full md:w-48 gap-2 shrink-0 mt-3 md:mt-0 pl-12 md:pl-0 pr-4 md:pr-0 justify-start md:justify-end">
-                            <button onclick="event.stopPropagation(); showDescModal('${item.id}')" class="ghost-btn flex-1 md:flex-none md:w-[88px] flex items-center justify-center px-1 md:px-2">
-                                重點說明
-                            </button>
+                        <div class="flex flex-row w-full md:w-48 gap-2 shrink-0 mt-3 md:mt-0 pl-10 md:pl-0 pr-4 md:pr-0 justify-start md:justify-end">
+                            <button onclick="event.stopPropagation(); showDescModal('${item.id}')" class="ghost-btn flex-1 md:flex-none md:w-[88px] flex items-center justify-center px-1 md:px-2">重點說明</button>
                         </div>
                     `;
                 } else {
-                    let outlineBtn = `<button onclick="showOutlineModal('${item.id}')" class="ghost-btn flex-1 md:flex-none md:w-[80px] flex items-center justify-center px-1 md:px-2 ${item.outline ? 'primary' : 'opacity-40 cursor-not-allowed'}">腳本大綱</button>`;
-                    let captionBtn = `<button onclick="showCaptionModal('${item.id}')" class="ghost-btn flex-1 md:flex-none md:w-[80px] flex items-center justify-center px-1 md:px-2 ${item.caption ? 'primary' : 'opacity-40 cursor-not-allowed'}">貼文文案</button>`;
-                    let videoBtn = item.videoUrl ? `<a href="${item.videoUrl}" target="_blank" class="ghost-btn flex-1 md:flex-none md:w-[100px] flex items-center justify-center px-1 md:px-2 text-[#2C2926] border-[#2C2926] font-medium"><i class="fa-solid fa-play text-[8px] mr-1.5"></i> 觀看影片</a>` : '';
-
                     actionsHTML = `
-                        <div class="flex flex-row w-full md:w-auto md:justify-end gap-2 shrink-0 mt-3 md:mt-0 pl-12 md:pl-0 pr-4 md:pr-0">
-                            ${outlineBtn}
-                            ${captionBtn}
-                            ${videoBtn}
+                        <div class="flex flex-row w-full md:w-auto md:justify-end gap-2 shrink-0 mt-3 md:mt-0 pl-10 md:pl-0 pr-4 md:pr-0">
+                            <button onclick="showOutlineModal('${item.id}')" class="ghost-btn flex-1 md:flex-none md:w-[80px] flex items-center justify-center px-1 md:px-2 ${item.outline ? 'primary' : 'opacity-40 cursor-not-allowed'}">腳本大綱</button>
+                            <button onclick="showCaptionModal('${item.id}')" class="ghost-btn flex-1 md:flex-none md:w-[80px] flex items-center justify-center px-1 md:px-2 ${item.caption ? 'primary' : 'opacity-40 cursor-not-allowed'}">貼文文案</button>
+                            ${item.videoUrl ? `<a href="${item.videoUrl}" target="_blank" class="ghost-btn flex-1 md:flex-none md:w-[100px] flex items-center justify-center px-1 md:px-2 text-[#2C2926] border-[#2C2926] font-medium"><i class="fa-solid fa-play text-[8px] mr-1.5"></i> 觀看影片</a>` : ''}
                         </div>
                     `;
                 }
 
-                // 點擊事件綁定 _uid
                 const clickableAction = currentTab === 'select' ? `onclick="toggleCard('${item._uid}')"` : '';
-                const cursorClass = currentTab === 'select' ? 'cursor-pointer' : '';
-                
                 const cardHTML = `
-                    <div ${clickableAction} class="list-item-hover group flex flex-col md:flex-row md:items-center py-5 px-2 border-b border-[#D5D1C8]/40 transition-all ${cursorClass}">
+                    <div ${clickableAction} class="list-item-hover group flex flex-col md:flex-row md:items-center py-5 px-2 border-b border-[#D5D1C8]/40 transition-all ${currentTab === 'select' ? 'cursor-pointer' : ''}">
                         <div class="flex items-start md:items-center gap-4 w-full md:w-auto flex-1">
-                            <div class="w-8 flex justify-center shrink-0 mt-1 md:mt-0">
-                                ${leftColHTML}
-                            </div>
+                            <div class="w-8 flex justify-center shrink-0 mt-1 md:mt-0">${leftColHTML}</div>
                             ${titleHTML}
                         </div>
-
                         ${actionsHTML}
                     </div>
                 `;
@@ -557,10 +497,10 @@
             });
         }
 
-        // 使用 _uid 來開關卡片選取狀態
         function toggleCard(uid) {
             if (selectedIds.has(uid)) selectedIds.delete(uid); else selectedIds.add(uid);
             document.getElementById('selected-count').innerText = selectedIds.size;
+            updateActionBarVisibility();
             renderCards(); 
         }
 
@@ -571,13 +511,10 @@
                 if(select) select.value = clientName;
             }
             selectedIds.clear();
-            document.getElementById('selected-count').innerText = '0';
+            updateActionBarVisibility();
             renderCards();
         }
 
-        // ==========================================
-        // 彈跳視窗 (Modal) 與文字解析邏輯
-        // ==========================================
         const modal = document.getElementById('global-modal');
         const modalWrapper = document.getElementById('modal-content-wrapper');
         const modalTitle = document.getElementById('modal-title');
@@ -588,15 +525,11 @@
         function openModal(title, contentHTML, actionConfig = null) {
             modalTitle.innerText = title;
             modalBody.innerHTML = contentHTML;
-            
             if (actionConfig) {
                 modalFooter.classList.remove('hidden');
                 modalActionBtn.innerText = actionConfig.text;
                 modalActionBtn.onclick = actionConfig.onClick;
-            } else {
-                modalFooter.classList.add('hidden');
-            }
-
+            } else { modalFooter.classList.add('hidden'); }
             modal.classList.remove('hidden');
             setTimeout(() => { modalWrapper.classList.add('modal-enter-active'); }, 10);
             document.body.style.overflow = 'hidden';
@@ -604,240 +537,97 @@
 
         function closeModal() {
             modalWrapper.classList.remove('modal-enter-active');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                document.body.style.overflow = '';
-            }, 300);
+            setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = ''; }, 300);
         }
 
         function showDescModal(id) {
             const item = database.find(i => i.id === id);
-            if (!item) return;
-            const content = item.desc || '（ 留白，等待故事填滿 ）';
-            openModal('重點說明', `<div class="whitespace-pre-wrap">${content}</div>`);
+            if (item) openModal('重點說明', `<div class="whitespace-pre-wrap">${item.desc || '（ 留白，等待故事填滿 ）'}</div>`);
         }
 
         function showCaptionModal(id) {
             const item = database.find(i => i.id === id);
-            if (!item || !item.caption) return; 
-            
-            const action = {
-                text: '複製文案',
-                onClick: () => { copyToClipboard(item.caption, "文案已複製"); closeModal(); }
-            };
-            openModal('貼文文案', `<div class="whitespace-pre-wrap select-all border-l-2 border-[#7A6E60] pl-4 italic text-[#5C5851]">${item.caption}</div>`, action);
+            if (item && item.caption) {
+                const action = { text: '複製文案', onClick: () => { copyToClipboard(item.caption, "文案已複製"); closeModal(); } };
+                openModal('貼文文案', `<div class="whitespace-pre-wrap select-all border-l-2 border-[#7A6E60] pl-4 italic text-[#5C5851]">${item.caption}</div>`, action);
+            }
         }
 
         function parseAndFormatPlainText(text) {
-            let lines = text.split('\n');
-            let html = '';
-            let inDialogue = false;
-            
+            let lines = text.split('\n'), html = '', inDialogue = false;
             lines.forEach(line => {
                 let t = line.trim();
-                if (!t) {
-                    html += '<div class="h-2"></div>'; // 保留空行
-                    return;
-                }
-                
+                if (!t) { html += '<div class="h-2"></div>'; return; }
                 if (/^(▌|■|●|◆|【)/.test(t) || /^(起|承|轉|合|開場|結尾|重點|第一幕|第二幕|第三幕)[：:]?/.test(t)) {
                     let title = t.replace(/^(▌|■|●|◆)/, '').trim();
-                    if(!title.includes('：') && !title.includes(':')) {
-                        let keywordMatch = title.match(/^(起|承|轉|合|開場|結尾|重點|第一幕|第二幕|第三幕)/);
-                        if(keywordMatch && title.length > keywordMatch[0].length && !title.startsWith(keywordMatch[0] + ' ')) {
-                           title = title.replace(keywordMatch[0], keywordMatch[0] + '：');
-                        }
-                    }
                     html += `<div class="text-[#2C2926] font-medium text-[15px] mt-6 mb-3 border-b border-[#D5D1C8]/60 pb-2 flex items-center gap-2"><i class="fa-solid fa-layer-group text-[12px] text-[#7A6E60]"></i> ${title}</div>`;
                     inDialogue = false; 
-                }
-                else if (/^(➤|▶|►|- |• )/.test(t)) {
+                } else if (/^(➤|▶|►|- |• )/.test(t)) {
                     let subText = t.replace(/^(➤|▶|►|- |• )/, '').trim();
-                    let icon = 'fa-caret-right';
-                    let bg = 'bg-[#FAF9F6] border border-[#D5D1C8] text-[#5C5851]';
-                    
-                    if(subText.includes('台詞') || subText.includes('語句') || subText.includes('文案')) {
-                        icon = 'fa-comment-dots';
-                        bg = 'bg-[#7A6E60]/10 text-[#7A6E60] border border-transparent';
-                        inDialogue = true;
-                    } else if (subText.includes('動作') || subText.includes('畫面') || subText.includes('視覺') || subText.includes('舉例')) {
-                        icon = 'fa-video';
-                        bg = 'bg-[#D5D1C8]/30 text-[#4A4640] border border-transparent';
-                        inDialogue = false;
-                    } else {
-                        inDialogue = false;
-                    }
-                    
+                    let icon = (subText.includes('台詞') || subText.includes('語句')) ? 'fa-comment-dots' : 'fa-video';
+                    let bg = (subText.includes('台詞') || subText.includes('語句')) ? 'bg-[#7A6E60]/10 text-[#7A6E60]' : 'bg-[#D5D1C8]/30 text-[#4A4640]';
+                    inDialogue = (subText.includes('台詞') || subText.includes('語句'));
                     html += `<div class="inline-flex items-center gap-1.5 px-2 py-1 rounded-sm mt-4 mb-2 text-[11px] tracking-widest font-medium ${bg}"><i class="fa-solid ${icon}"></i> ${subText}</div>`;
-                }
-                else {
-                    if (inDialogue) {
-                        html += `<div class="pl-3 border-l-2 border-[#7A6E60]/40 text-[#5C5851] italic text-[14px] leading-loose mb-1">${t}</div>`;
-                    } else {
-                        html += `<div class="text-[#4A4640] text-[14px] font-light leading-relaxed mb-1.5">${t}</div>`;
-                    }
+                } else {
+                    if (inDialogue) html += `<div class="pl-3 border-l-2 border-[#7A6E60]/40 text-[#5C5851] italic text-[14px] leading-loose mb-1">${t}</div>`;
+                    else html += `<div class="text-[#4A4640] text-[14px] font-light leading-relaxed mb-1.5">${t}</div>`;
                 }
             });
-            
             return `<div class="px-2 pb-4">${html}</div>`;
         }
 
         function showOutlineModal(id) {
             const item = database.find(i => i.id === id);
             if (!item || !item.outline) return; 
-            
-            let outlineContentHTML = '';
-            let outlineData = item.outline;
-            
-            if (typeof outlineData === 'string') {
-                try {
-                    let cleaned = outlineData.trim();
-                    if (cleaned.startsWith('[')) {
-                        outlineData = JSON.parse(cleaned);
-                    }
-                } catch(e) {}
-            }
-
-            if (Array.isArray(outlineData) && outlineData.length > 0) {
-                let rows = outlineData.map(row => `
-                    <tr>
-                        <td class="font-medium whitespace-nowrap">${row.structure || row.架構 || ''}</td>
-                        <td>${(row.visual || row['畫面/動作建議'] || '').replace(/\n/g, '<br>')}</td>
-                        <td class="text-[#5C5851] italic">${row.emotion || row['情緒/表情'] || ''}</td>
-                        <td>${(row.dialogue || row['參考語句 (台詞)'] || '').replace(/\n/g, '<br>')}</td>
-                    </tr>
-                `).join('');
-
-                outlineContentHTML = `
-                    <div class="overflow-x-auto w-full">
-                        <table class="w-full text-left border-collapse min-w-[600px] minimal-table">
-                            <thead>
-                                <tr>
-                                    <th class="w-16">架構</th>
-                                    <th class="w-1/3">畫面 / 動作建議</th>
-                                    <th class="w-24">情緒 / 表情</th>
-                                    <th>參考語句 (台詞)</th>
-                                </tr>
-                            </thead>
-                            <tbody>${rows}</tbody>
-                        </table>
-                    </div>
-                `;
-            } else {
-                outlineContentHTML = parseAndFormatPlainText(String(item.outline));
-            }
-
-            openModal('腳本大綱', outlineContentHTML);
+            openModal('腳本大綱', parseAndFormatPlainText(String(item.outline)));
         }
 
-        // ==========================================
-        // 其他共用功能
-        // ==========================================
         async function submitSelection() {
-            if (selectedIds.size === 0) { showToast("請至少選擇一個項目。"); return; }
-            
+            if (selectedIds.size === 0) return;
             const btn = document.getElementById('submit-btn');
             const originalText = btn.innerHTML;
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> 處理中...`;
-            btn.disabled = true; btn.classList.add('opacity-80');
+            btn.disabled = true;
 
             try {
-                // 送出真正的 scriptId (或 id) 給後台處理
-                const payload = { 
-                    ids: Array.from(selectedIds).map(uid => {
-                        const target = database.find(i => i._uid === uid);
-                        // 優先傳遞 scriptId 讓後台去 F 欄比對
-                        return target ? (target.scriptId || target.id) : uid;
-                    }) 
-                };
+                const payload = { ids: Array.from(selectedIds).map(uid => {
+                    const target = database.find(i => i._uid === uid);
+                    return target ? (target.scriptId || target.id) : uid;
+                }) };
 
-                await fetch(API_URL, {
-                    method: 'POST', mode: 'no-cors', 
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify(payload)
-                });
-                showToast("選擇已確實傳達。");
-                
-                // 本地端暫時更新狀態，方便即時預覽
+                await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                showToast("選擇已確實傳達至資料庫。");
                 database.forEach(item => { if (selectedIds.has(item._uid)) item.userSelected = '選到了'; });
                 selectedIds.clear();
-                updateUI();
-                setTimeout(() => { switchTab('progress'); }, 1500);
+                updateActionBarVisibility();
+                renderCards();
+                setTimeout(() => switchTab('progress'), 1500);
             } catch (error) {
-                console.error(error); showToast("連線發生異常，請重試。");
+                console.error(error); showToast("連線異常，請稍後再試。");
             } finally {
-                btn.innerHTML = originalText; btn.disabled = false; btn.classList.remove('opacity-80');
+                btn.innerHTML = originalText; btn.disabled = false;
             }
         }
 
-        function updateUI() {
-            document.getElementById('selected-count').innerText = selectedIds.size;
-            renderCards(); 
-        }
-
-        function copyClientLink() {
-            if (currentClientFilter === 'all') return;
-            const baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-            copyToClipboard(`${baseUrl}?client=${currentClientFilter}`, "專屬連結已複製");
-        }
-
         function copyToClipboard(text, msg = "已複製。") {
-            navigator.clipboard.writeText(text).then(() => { showToast(msg); }).catch(err => alert('複製失敗'));
+            navigator.clipboard.writeText(text).then(() => showToast(msg)).catch(() => alert('複製失敗'));
         }
 
         function showToast(text) {
             const toast = document.getElementById('toast');
             toast.innerHTML = text;
-            toast.style.transform = "translate(-50%, 15px)";
             toast.classList.remove('opacity-0', 'pointer-events-none');
-            setTimeout(() => { toast.style.transform = "translate(-50%, 0)"; }, 10);
-            setTimeout(() => { 
-                toast.classList.add('opacity-0', 'pointer-events-none'); 
-                toast.style.transform = "translate(-50%, 15px)";
-            }, 5000); // 增加停留時間，方便看清楚錯誤
+            setTimeout(() => toast.classList.add('opacity-0', 'pointer-events-none'), 4000);
         }
 
         function updateStatus(isOnline) {
             const badge = document.getElementById('status-badge');
-            if(isOnline) {
-                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-[#7A6E60] mr-2"></span> 狀態良好`;
-            } else {
-                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full border border-[#7A6E60] mr-2 animate-pulse"></span> 演示模式`;
-            }
+            badge.innerHTML = isOnline ? `<span class="w-1.5 h-1.5 rounded-full bg-[#7A6E60] mr-2"></span> 狀態良好` : `<span class="w-1.5 h-1.5 rounded-full border border-[#7A6E60] mr-2 animate-pulse"></span> 演示模式`;
         }
 
         function useFallbackData() {
-            database = [
-                { 
-                    id: "G001-01", scriptId: "S-101", storeName: "中山店", client: "知行者學院", editor: "Ariel", 
-                    title: "深蹲膝蓋痛？不是姿勢錯，是肌肉『罷工』了！", desc: "展示一個簡單的自測動作。\n點出大腿前側萎縮才是原因。", 
-                    status: "已完成", 
-                    outline: "起：(春夏秋冬四季人)\n你知道有春夏秋冬四種人嗎?\n\n承：(舉例春天人)\n每個人都有自己的季節，每個季節有適合的顏色\n你(拍攝者)就適合春天，暖色系的類型\n簡易分辨_膚色，瞳孔，配件\n\n轉：(適合和不適合春天人的髮色)\n適合的髮色：(提供照片)\n不適合的 উপসর্গ的髮色：(提供照片)\n\n合：(呼籲預約)\n不知道自己是哪個我來幫你看" 
-                },
-                { 
-                    id: "G001-02", scriptId: "S-102", storeName: "信義店", client: "知行者學院", editor: "Jason", 
-                    title: "春季限定：櫻花拿鐵隱藏點法", desc: "以極簡鏡頭拍攝櫻花落下的畫面，帶入飲品特寫。", 
-                    status: "剪輯中" 
-                },
-                { 
-                    id: "G001-03", scriptId: "S-103", storeName: "大安店", client: "知行者學院", editor: "Kiki", 
-                    title: "洗碗工還是貴婦？一秒惹怒客人的老公", desc: "透過沙龍理髮的日常對話，展現出自信與霸氣的態度。", 
-                    status: "規劃中", caption: "褪去浮華，留下純粹。\n一個好的器物，不張揚，卻能在每一個清晨，安靜地承載你的日常。\n\n#極簡生活 #晨間儀式", videoUrl: "https://www.youtube.com" 
-                }
-            ];
-            
-            // 給展示資料也掛上 _uid 以防出錯
-            database.forEach((item, index) => {
-                item._uid = item.scriptId ? String(item.scriptId) : `uid_${index}`;
-            });
-            
-            setTimeout(() => {
-                if(isAdminMode) {
-                    const select = document.getElementById('client-select');
-                    const firstCombo = "知行者學院 - 中山店";
-                    select.value = firstCombo; filterClient(firstCombo);
-                }
-            }, 500);
+            database = [{ id: "G001-01", scriptId: "S-101", storeName: "中山店", client: "知行者學院", title: "深蹲膝蓋痛？", status: "已完成", outline: "起：(四季人)\n你知道有春夏秋冬四種人嗎?" }];
+            database.forEach((item, index) => { item._uid = item.scriptId || `uid_${index}`; });
         }
     </script>
 </body>
