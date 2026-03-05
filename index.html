@@ -282,7 +282,7 @@
 
     <script>
         // ==========================================
-        // CONFIG: 已經替換為您的 Google Apps Script 網址
+        // CONFIG: 您的 Google Apps Script 網址
         // ==========================================
         const API_URL = "https://script.google.com/macros/s/AKfycbw0Dz-c2qfiQKMiZv3ge732Y72TiTb4fHu8hRfA9XzUuxx4wT48_EEaXtqVvb3tF6picw/exec"; 
 
@@ -344,10 +344,17 @@
             try {
                 if(!API_URL.startsWith("https://script.google.com")) throw new Error("API URL尚未設定");
                 const response = await fetch(API_URL);
-                if (!response.ok) throw new Error('Network response');
+                
+                // 💡 強化錯誤偵測：檢查是否回傳了 HTML 錯誤頁面 (通常代表權限錯誤)
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("text/html")) {
+                    console.error("收到 HTML 回應，表示您的 Apps Script 權限設定錯誤或尚未授權。");
+                    throw new Error("Apps Script 拒絕存取，請檢查部署權限是否設為「所有人」。");
+                }
+
+                if (!response.ok) throw new Error(`網路回應錯誤 (${response.status})`);
                 const rawData = await response.json();
                 
-                // 防呆機制：確保 database 一定是個陣列，如果後端回傳錯誤物件 (如 {error: "..."}) 則視為空陣列或拋出錯誤
                 if (Array.isArray(rawData)) {
                     database = rawData;
                 } else if (rawData.error) {
@@ -358,7 +365,14 @@
                 
                 updateStatus(true);
             } catch (error) {
-                console.warn("使用演示資料模式", error);
+                console.error("🚨 資料抓取失敗細節:", error);
+                
+                let userFriendlyError = error.message;
+                if(error.message && error.message.includes('setHeader is not a function')) {
+                   userFriendlyError = "系統仍讀取到舊版程式碼。請確認您已在 Apps Script 中【新增部署作業】，並將【新的網址】更新到 index.html 中。如果網址沒變，請清除瀏覽器快取。";
+                }
+                
+                showToast(`<i class="fa-solid fa-triangle-exclamation mr-2 text-red-400"></i> ${userFriendlyError}`);
                 useFallbackData();
                 updateStatus(false);
             } finally {
@@ -371,7 +385,6 @@
 
         function generateClientOptions() {
             const select = document.getElementById('client-select');
-            // 防呆：再次確保 database 是陣列
             const safeDatabase = Array.isArray(database) ? database : [];
             const clients = [...new Set(safeDatabase.map(item => item.client).filter(c => c))];
             select.innerHTML = '<option value="all">顯示全部</option>';
@@ -407,7 +420,6 @@
             
             container.innerHTML = '';
 
-            // 防呆：確保 database 是陣列
             const safeDatabase = Array.isArray(database) ? database : [];
             let clientData = safeDatabase.filter(item => currentClientFilter === 'all' || item.client === currentClientFilter);
 
@@ -738,14 +750,14 @@
 
         function showToast(text) {
             const toast = document.getElementById('toast');
-            toast.innerText = text;
+            toast.innerHTML = text;
             toast.style.transform = "translate(-50%, 15px)";
             toast.classList.remove('opacity-0', 'pointer-events-none');
             setTimeout(() => { toast.style.transform = "translate(-50%, 0)"; }, 10);
             setTimeout(() => { 
                 toast.classList.add('opacity-0', 'pointer-events-none'); 
                 toast.style.transform = "translate(-50%, 15px)";
-            }, 3000);
+            }, 5000); // 增加停留時間，方便看清楚錯誤
         }
 
         function updateStatus(isOnline) {
@@ -763,7 +775,7 @@
                     id: "G001-01", scriptId: "S-101", storeName: "中山店", client: "知行者學院", editor: "Ariel", 
                     title: "深蹲膝蓋痛？不是姿勢錯，是肌肉『罷工』了！", desc: "展示一個簡單的自測動作。\n點出大腿前側萎縮才是原因。", 
                     status: "已完成", 
-                    outline: "起：(春夏秋冬四季人)\n你知道有春夏秋冬四種人嗎?\n\n承：(舉例春天人)\n每個人都有自己的季節，每個季節有適合的顏色\n你(拍攝者)就適合春天，暖色系的類型\n簡易分辨_膚色，瞳孔，配件\n\n轉：(適合和不適合春天人的髮色)\n適合的髮色：(提供照片)\n不適合的髮色：(提供照片)\n\n合：(呼籲預約)\n不知道自己是哪個我來幫你看" 
+                    outline: "起：(春夏秋冬四季人)\n你知道有春夏秋冬四種人嗎?\n\n承：(舉例春天人)\n每個人都有自己的季節，每個季節有適合的顏色\n你(拍攝者)就適合春天，暖色系的類型\n簡易分辨_膚色，瞳孔，配件\n\n轉：(適合和不適合春天人的髮色)\n適合的髮色：(提供照片)\n不適合的 উপসর্গ的髮色：(提供照片)\n\n合：(呼籲預約)\n不知道自己是哪個我來幫你看" 
                 },
                 { 
                     id: "G001-02", scriptId: "S-102", storeName: "信義店", client: "知行者學院", editor: "Jason", 
