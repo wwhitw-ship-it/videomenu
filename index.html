@@ -386,11 +386,21 @@
         function generateClientOptions() {
             const select = document.getElementById('client-select');
             const safeDatabase = Array.isArray(database) ? database : [];
-            const clients = [...new Set(safeDatabase.map(item => item.client).filter(c => c))];
+            
+            // 將「客戶名稱」與「店家名稱」組合成一個選項字串，例如：毛貴人 - 中山店
+            const clients = [...new Set(safeDatabase
+                .filter(item => item.client || item.storeName)
+                .map(item => {
+                    if (item.client && item.storeName) return `${item.client} - ${item.storeName}`;
+                    return item.client || item.storeName;
+                })
+            )];
+
             select.innerHTML = '<option value="all">顯示全部</option>';
-            clients.forEach(client => {
+            clients.forEach(clientCombo => {
                 const option = document.createElement('option');
-                option.value = client; option.innerText = client;
+                option.value = clientCombo; 
+                option.innerText = clientCombo;
                 select.appendChild(option);
             });
         }
@@ -421,7 +431,17 @@
             container.innerHTML = '';
 
             const safeDatabase = Array.isArray(database) ? database : [];
-            let clientData = safeDatabase.filter(item => currentClientFilter === 'all' || item.client === currentClientFilter);
+            
+            // 篩選邏輯更新：比對「客戶名稱 - 店家名稱」組合字串
+            let clientData = safeDatabase.filter(item => {
+                if (currentClientFilter === 'all') return true;
+                
+                let comboName = '';
+                if (item.client && item.storeName) comboName = `${item.client} - ${item.storeName}`;
+                else comboName = item.client || item.storeName || '';
+                
+                return comboName === currentClientFilter;
+            });
 
             // 過濾邏輯：依照新的狀態字眼區分
             const selectData = clientData.filter(item => (!item.status || item.status === '未選擇') && item.userSelected !== '選到了');
@@ -792,7 +812,8 @@
             setTimeout(() => {
                 if(isAdminMode) {
                     const select = document.getElementById('client-select');
-                    select.value = "知行者學院"; filterClient("知行者學院");
+                    const firstCombo = "知行者學院 - 中山店";
+                    select.value = firstCombo; filterClient(firstCombo);
                 }
             }, 500);
         }
