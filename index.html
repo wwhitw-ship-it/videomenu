@@ -287,7 +287,7 @@
         const API_URL = "https://script.google.com/macros/s/AKfycby2ZzPf5pgHLp1V68v4DVPTAfbkmEAs3Nl4LTLYAoOqS_ilbKvNY5LplSwmkX0h_aY9FA/exec"; 
 
         let database = [];
-        let selectedIds = new Set();
+        let selectedIds = new Set(); // 現在儲存的是 _uid (腳本編號)
         let currentClientFilter = 'all';
         let isAdminMode = false;
         let currentTab = 'select';
@@ -345,7 +345,6 @@
                 if(!API_URL.startsWith("https://script.google.com")) throw new Error("API URL尚未設定");
                 const response = await fetch(API_URL);
                 
-                // 💡 強化錯誤偵測：檢查是否回傳了 HTML 錯誤頁面 (通常代表權限錯誤)
                 const contentType = response.headers.get("content-type");
                 if (contentType && contentType.includes("text/html")) {
                     console.error("收到 HTML 回應，表示您的 Apps Script 權限設定錯誤或尚未授權。");
@@ -356,7 +355,12 @@
                 const rawData = await response.json();
                 
                 if (Array.isArray(rawData)) {
-                    database = rawData;
+                    // 給每個資料配發獨立的 _uid，解決 A 欄重複造成的全選 Bug
+                    // 優先使用腳本編號(scriptId)，若沒有才用原本的 id 加上迴圈數字
+                    database = rawData.map((item, index) => {
+                        item._uid = item.scriptId ? String(item.scriptId) : `${item.id}_${index}`;
+                        return item;
+                    });
                 } else if (rawData.error) {
                     throw new Error(rawData.error);
                 } else {
@@ -472,7 +476,8 @@
             }
 
             filteredData.forEach((item, index) => {
-                const isSelected = selectedIds.has(item.id);
+                // 使用唯一的 _uid 來判斷是否被選取
+                const isSelected = selectedIds.has(item._uid);
                 
                 // 1. 左側 Checkbox 或是 狀態標籤
                 let leftColHTML = '';
@@ -529,7 +534,8 @@
                     `;
                 }
 
-                const clickableAction = currentTab === 'select' ? `onclick="toggleCard('${item.id}')"` : '';
+                // 點擊事件綁定 _uid
+                const clickableAction = currentTab === 'select' ? `onclick="toggleCard('${item._uid}')"` : '';
                 const cursorClass = currentTab === 'select' ? 'cursor-pointer' : '';
                 
                 const cardHTML = `
@@ -548,8 +554,9 @@
             });
         }
 
-        function toggleCard(id) {
-            if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
+        // 使用 _uid 來開關卡片選取狀態
+        function toggleCard(uid) {
+            if (selectedIds.has(uid)) selectedIds.delete(uid); else selectedIds.add(uid);
             document.getElementById('selected-count').innerText = selectedIds.size;
             renderCards(); 
         }
@@ -732,8 +739,15 @@
             btn.disabled = true; btn.classList.add('opacity-80');
 
             try {
-                // 送出選題，將資料 POST 給 Apps Script
-                const payload = { ids: Array.from(selectedIds) };
+                // 送出真正的 scriptId (或 id) 給後台處理
+                const payload = { 
+                    ids: Array.from(selectedIds).map(uid => {
+                        const target = database.find(i => i._uid === uid);
+                        // 優先傳遞 scriptId 讓後台去 F 欄比對
+                        return target ? (target.scriptId || target.id) : uid;
+                    }) 
+                };
+
                 await fetch(API_URL, {
                     method: 'POST', mode: 'no-cors', 
                     headers: { 'Content-Type': 'text/plain' },
@@ -742,7 +756,7 @@
                 showToast("選擇已確實傳達。");
                 
                 // 本地端暫時更新狀態，方便即時預覽
-                database.forEach(item => { if (selectedIds.has(item.id)) item.userSelected = '選到了'; });
+                database.forEach(item => { if (selectedIds.has(item._uid)) item.userSelected = '選到了'; });
                 selectedIds.clear();
                 updateUI();
                 setTimeout(() => { switchTab('progress'); }, 1500);
@@ -808,6 +822,11 @@
                     status: "規劃中", caption: "褪去浮華，留下純粹。\n一個好的器物，不張揚，卻能在每一個清晨，安靜地承載你的日常。\n\n#極簡生活 #晨間儀式", videoUrl: "https://www.youtube.com" 
                 }
             ];
+            
+            // 給展示資料也掛上 _uid 以防出錯
+            database.forEach((item, index) => {
+                item._uid = item.scriptId ? String(item.scriptId) : `uid_${index}`;
+            });
             
             setTimeout(() => {
                 if(isAdminMode) {
