@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RENATA 社群影音沙龍</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200;300;400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 全站風格設定 */
+        body { 
+            font-family: 'Noto Sans TC', sans-serif; 
+            background-color: var(--color-bg); 
+            color: var(--color-text); 
+            -webkit-font-smoothing: antialiased;
+        }
+        h1, h2, h3, .serif-font { font-family: 'Noto Serif TC', serif; }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* 斷捨離極簡配色方案 */
+        :root {
+            --color-bg: #FAF9F6;       
+            --color-text: #2C2926;     
+            --color-text-light: #5C5851; 
+            --color-accent: #7A6E60;   
+            --color-accent-light: #D5D1C8; 
+        }
+
+        /* 狀態標籤 */
+        .status-badge {
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            padding: 4px 8px;
+            border-radius: 2px;
+            border: 1px solid;
+            white-space: nowrap;
+        }
+
+        /* 載入動畫微調 */
+        .loader {
+            border: 2px solid var(--color-accent-light); 
+            border-radius: 50%; 
+            border-top: 2px solid var(--color-accent);
+            width: 28px; height: 28px; 
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 頁籤樣式優化 */
+        .tab-active { 
+            border-bottom: 2px solid var(--color-accent); 
+            color: var(--color-text); 
+            font-weight: 600; 
+        }
+        .tab-inactive { 
+            color: var(--color-text-light); 
+            border-bottom: 2px solid transparent;
+        }
+
+        /* 清單項目懸停 */
+        .list-item-hover:hover {
+            background-color: rgba(213, 209, 200, 0.2);
+        }
+
+        /* 客製化按鈕 (條列式專用) */
+        .ghost-btn {
+            background-color: transparent;
+            border: 1px solid var(--color-accent-light);
+            color: var(--color-text-light);
+            transition: all 0.3s ease;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 2px;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+            outline: none;
+        }
+        .ghost-btn:hover:not(:disabled) {
+            border-color: var(--color-accent);
+            color: var(--color-text);
+            background-color: rgba(122, 110, 96, 0.05);
+        }
+        .ghost-btn.primary {
+            border-color: var(--color-text);
+            color: var(--color-text); 
+            font-weight: 500;
+        }
+
+        /* 彈跳視窗動畫 */
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .modal-enter-active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        /* 表格樣式 */
+        .minimal-table th {
+            font-weight: 500;
+            color: var(--color-text-light);
+            border-bottom: 1px solid var(--color-accent-light);
+            padding-bottom: 8px;
+        }
+        .minimal-table td {
+            padding: 16px 8px;
+            border-bottom: 1px solid rgba(213, 209, 200, 0.3);
+            vertical-align: top;
+            color: var(--color-text);
+            line-height: 1.8;
+        }
+
+        /* 標籤極簡化 */
+        .tag-base {
+            background-color: transparent;
+            color: var(--color-text-light);
+            border: 1px solid var(--color-accent-light);
+            padding: 2px 8px;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            border-radius: 2px;
+        }
+
+        /* 自定義捲動條 */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--color-accent-light); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
+    </style>
+</head>
+<body class="pb-32 selection:bg-[#D5D1C8] selection:text-[#2C2926]">
+
+    <!-- Loading -->
+    <div id="loading-overlay" class="fixed inset-0 bg-[#FAF9F6] z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="loader mb-6"></div>
+        <p class="text-[#7A6E60] text-xs tracking-[0.2em] font-light serif-font">RENATA 社群影音沙龍</p>
+    </div>
+
+    <!-- 門禁畫面 -->
+    <div id="access-gate" class="fixed inset-0 bg-[#FAF9F6] z-50 flex flex-col items-center justify-center hidden">
+        <div class="p-8 max-w-sm w-full mx-4 text-center">
+            <h2 class="text-3xl text-[#2C2926] mb-3 serif-font font-light tracking-wider">專屬存取空間</h2>
+            <p class="text-[#5C5851] text-sm mb-12 leading-loose font-light">您目前位於公開入口。<br>請點擊您的專屬連結以查看內容。</p>
+            <div class="pt-6">
+                <button id="admin-login-btn" onclick="showLoginInput()" class="text-xs text-[#5C5851] hover:text-[#2C2926] py-2 px-4 transition-all flex items-center justify-center mx-auto gap-2 tracking-widest">
+                    <i class="fa-solid fa-key text-[10px]"></i> 管理員登入
+                </button>
+                <div id="admin-input-area" class="hidden animate-fade-in mt-4">
+                    <div class="flex items-center gap-0 border-b border-[#D5D1C8] focus-within:border-[#7A6E60] transition-all pb-1 mx-8">
+                        <input type="password" id="admin-pass" placeholder="輸入通行碼" class="flex-1 bg-transparent text-[#2C2926] text-sm focus:outline-none block px-2 py-2 text-center tracking-widest font-light">
+                        <button onclick="submitAdminLogin()" class="text-[#7A6E60] hover:text-[#2C2926] px-3 py-2 transition-colors">
+                            <i class="fa-solid fa-arrow-right-long"></i>
+                        </button>
+                    </div>
+                    <p id="login-error" class="text-red-500 text-xs mt-4 font-light hidden tracking-wide">通行碼錯誤，請重試</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 頂部導航 (Sticky) -->
+    <div id="main-nav" class="sticky top-0 z-40 transition-all pt-6 pb-0 bg-[#FAF9F6]/95 backdrop-blur-md border-b border-[#D5D1C8]/50">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="flex justify-between items-end mb-6">
+                <h1 class="text-xl md:text-2xl tracking-[0.1em] flex items-center text-[#2C2926] serif-font font-normal">
+                    <span id="header-title">RENATA 社群影音沙龍</span>
+                </h1>
+                <span id="status-badge" class="text-[10px] text-[#7A6E60] tracking-widest flex items-center font-light">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#7A6E60] mr-2"></span> 讀取中
+                </span>
+            </div>
+
+            <!-- 客戶篩選 -->
+            <div class="flex items-center space-x-4 mb-4" id="filter-container">
+                <span class="text-xs text-[#5C5851] font-light tracking-widest">客戶</span>
+                <div class="relative flex-1 max-w-[200px] group">
+                    <select id="client-select" onchange="filterClient(this.value)" class="appearance-none w-full bg-transparent text-[#2C2926] text-sm border-b border-[#D5D1C8] px-0 py-2 pr-8 focus:outline-none focus:border-[#7A6E60] cursor-pointer font-medium transition-all tracking-wide">
+                        <option value="all">顯示全部</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-0 text-[#7A6E60]">
+                        <i class="fa-solid fa-angle-down text-[10px]"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex mt-2 gap-8 border-b border-[#D5D1C8]/50">
+                <button onclick="switchTab('select')" id="tab-select" class="pb-3 text-sm tab-active transition-all relative flex items-center justify-center gap-2 tracking-widest">
+                    我要選題 <span id="count-select" class="text-[#7A6E60] text-[10px] font-medium">0</span>
+                </button>
+                <button onclick="switchTab('progress')" id="tab-progress" class="pb-3 text-sm tab-inactive transition-all relative flex items-center justify-center gap-2 tracking-widest">
+                    製作進度 <span id="count-progress" class="text-[#5C5851] text-[10px] font-medium">0</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 歡迎詞區塊 -->
+    <div id="welcome-banner" class="max-w-4xl mx-auto px-6 mt-10 mb-6 hidden">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+                <h2 class="text-xl mb-2 tracking-wider flex items-center gap-2 serif-font font-normal text-[#2C2926]">
+                    Hi, <span id="client-name-display" class="text-[#7A6E60] font-medium"></span> 
+                </h2>
+                <p id="banner-desc" class="text-[#5C5851] text-xs font-light tracking-widest">"真實的瑕疵，遠勝過精緻的虛假。"</p>
+            </div>
+            <button id="share-link-btn" onclick="copyClientLink()" class="hidden sm:inline-flex ghost-btn px-4 py-2 items-center tracking-widest w-fit">
+                <i class="fa-solid fa-link mr-2 text-[10px]"></i> 複製專屬連結
+            </button>
+        </div>
+    </div>
+
+    <!-- 主要內容區 (清單容器) -->
+    <div class="max-w-4xl mx-auto px-6 mt-6 transition-all duration-500 pb-20">
+        <!-- 表頭 -->
+        <div id="list-header" class="hidden md:flex items-center gap-4 py-2 border-b-2 border-[#D5D1C8] mb-2 px-2">
+            <div class="w-8"></div>
+            <div class="flex-1 text-[11px] text-[#5C5851] tracking-widest font-medium">主題名稱</div>
+            <div id="header-action-text" class="w-64 text-right text-[11px] text-[#5C5851] tracking-widest pr-2 font-medium">說明</div>
+        </div>
+        
+        <div id="card-container" class="flex flex-col"></div>
+    </div>
+
+    <!-- 彈跳視窗 (Modal) -->
+    <div id="global-modal" class="fixed inset-0 z-[60] hidden">
+        <!-- 遮罩背景 -->
+        <div class="absolute inset-0 bg-[#2C2926]/40 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        <!-- 視窗本體 -->
+        <div class="absolute inset-0 flex items-center justify-center p-4 md:p-6 pointer-events-none">
+            <div id="modal-content-wrapper" class="bg-[#FAF9F6] w-full max-w-3xl max-h-[85vh] flex flex-col rounded-sm shadow-2xl pointer-events-auto modal-enter border border-[#D5D1C8]">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between px-6 py-5 border-b border-[#D5D1C8]/50 bg-[#FAF9F6] z-10 sticky top-0 rounded-t-sm">
+                    <h3 id="modal-title" class="text-lg text-[#2C2926] serif-font font-medium tracking-widest">標題</h3>
+                    <button onclick="closeModal()" class="text-[#5C5851] hover:text-[#2C2926] transition-colors p-2">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                <!-- Modal Body -->
+                <div id="modal-body" class="p-6 md:p-8 overflow-y-auto text-[#2C2926] font-normal text-[14px] leading-loose tracking-wide">
+                    <!-- 內容由 JS 注入 -->
+                </div>
+                <!-- Modal Footer -->
+                <div id="modal-footer" class="hidden px-6 py-4 border-t border-[#D5D1C8]/50 bg-[#F3F1EC]/50 flex justify-end sticky bottom-0 rounded-b-sm">
+                    <button id="modal-action-btn" class="ghost-btn primary px-6 py-2">操作按鈕</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 空狀態 -->
+    <div id="empty-state" class="hidden text-center mt-24 px-6">
+        <div class="relative inline-flex items-center justify-center mb-6 opacity-40">
+            <i class="fa-brands fa-envira text-[#7A6E60] text-4xl"></i>
+        </div>
+        <h3 class="text-lg text-[#2C2926] mb-3 serif-font font-medium tracking-widest">無需掛心</h3>
+        <p class="text-[#5C5851] text-xs font-normal tracking-wide">目前沒有需要處理的項目，請享受當下的寧靜。</p>
+    </div>
+
+    <!-- 底部操作區 -->
+    <div id="action-bar" class="fixed bottom-0 left-0 right-0 z-40 hidden pointer-events-none">
+        <div class="max-w-4xl mx-auto px-0 pointer-events-auto">
+            <div class="bg-[#FAF9F6]/95 backdrop-blur-md border-t border-[#D5D1C8] px-6 py-4 flex items-center justify-between gap-6 shadow-[0_-10px_30px_rgba(250,249,246,0.8)]">
+                <div class="flex items-center gap-4">
+                    <span class="text-[11px] text-[#5C5851] tracking-[0.2em] font-medium">已選</span>
+                    <span id="selected-count" class="text-xl text-[#7A6E60] font-medium serif-font w-4 text-center">0</span>
+                </div>
+                <button onclick="submitSelection()" id="submit-btn" class="max-w-[200px] w-full bg-[#7A6E60] text-[#FAF9F6] hover:bg-[#5C5851] py-3 px-6 transition-all text-[12px] tracking-widest font-medium">
+                    確認送出
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-[#2C2926] text-[#FAF9F6] px-6 py-3 opacity-0 pointer-events-none transition-all duration-500 z-[70] font-normal flex items-center gap-3 tracking-widest text-[13px] shadow-lg shadow-black/10 rounded-sm"></div>
+
+    <script>
+        // ==========================================
+        // CONFIG: 已經替換為您的 Google Apps Script 網址
+        // ==========================================
+        const API_URL = "https://script.google.com/macros/s/AKfycbw0Dz-c2qfiQKMiZv3ge732Y72TiTb4fHu8hRfA9XzUuxx4wT48_EEaXtqVvb3tF6picw/exec"; 
+
+        let database = [];
+        let selectedIds = new Set();
+        let currentClientFilter = 'all';
+        let isAdminMode = false;
+        let currentTab = 'select';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const clientParam = urlParams.get('client');
+            const modeParam = urlParams.get('mode');
+
+            if (clientParam) {
+                await fetchData();
+                isAdminMode = false;
+                filterClient(clientParam);
+                document.getElementById('filter-container').style.display = 'none';
+            } else if (modeParam === 'admin') {
+                await fetchData();
+                isAdminMode = true;
+                generateClientOptions(); 
+                renderCards();
+            } else {
+                document.getElementById('loading-overlay').style.display = 'none';
+                document.getElementById('access-gate').classList.remove('hidden');
+                document.getElementById('main-nav').style.display = 'none';
+            }
+        });
+
+        function showLoginInput() {
+            document.getElementById('admin-login-btn').classList.add('hidden');
+            document.getElementById('admin-input-area').classList.remove('hidden');
+            document.getElementById('admin-pass').focus();
+        }
+
+        async function submitAdminLogin() {
+            const input = document.getElementById('admin-pass');
+            const errorMsg = document.getElementById('login-error');
+            if (input.value === "8888") {
+                errorMsg.classList.add('hidden');
+                document.getElementById('access-gate').classList.add('hidden');
+                document.getElementById('main-nav').style.display = 'block';
+                document.getElementById('loading-overlay').style.display = 'flex';
+                isAdminMode = true;
+                await fetchData();
+                generateClientOptions();
+                renderCards();
+            } else {
+                errorMsg.classList.remove('hidden');
+                input.value = ""; input.focus();
+            }
+        }
+        
+        document.getElementById('admin-pass')?.addEventListener('keypress', e => { if(e.key === 'Enter') submitAdminLogin(); });
+
+        async function fetchData() {
+            try {
+                if(!API_URL.startsWith("https://script.google.com")) throw new Error("API URL尚未設定");
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Network response');
+                const rawData = await response.json();
+                
+                // 防呆機制：確保 database 一定是個陣列，如果後端回傳錯誤物件 (如 {error: "..."}) 則視為空陣列或拋出錯誤
+                if (Array.isArray(rawData)) {
+                    database = rawData;
+                } else if (rawData.error) {
+                    throw new Error(rawData.error);
+                } else {
+                    database = [];
+                }
+                
+                updateStatus(true);
+            } catch (error) {
+                console.warn("使用演示資料模式", error);
+                useFallbackData();
+                updateStatus(false);
+            } finally {
+                setTimeout(() => {
+                    document.getElementById('loading-overlay').style.opacity = '0';
+                    setTimeout(() => { document.getElementById('loading-overlay').style.display = 'none'; }, 500);
+                }, 500);
+            }
+        }
+
+        function generateClientOptions() {
+            const select = document.getElementById('client-select');
+            // 防呆：再次確保 database 是陣列
+            const safeDatabase = Array.isArray(database) ? database : [];
+            const clients = [...new Set(safeDatabase.map(item => item.client).filter(c => c))];
+            select.innerHTML = '<option value="all">顯示全部</option>';
+            clients.forEach(client => {
+                const option = document.createElement('option');
+                option.value = client; option.innerText = client;
+                select.appendChild(option);
+            });
+        }
+
+        function switchTab(tabName) {
+            currentTab = tabName;
+            ['select', 'progress'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tabName) { btn.classList.add('tab-active'); btn.classList.remove('tab-inactive'); } 
+                else { btn.classList.remove('tab-active'); btn.classList.add('tab-inactive'); }
+            });
+            document.getElementById('action-bar').classList.toggle('hidden', tabName !== 'select');
+            
+            const headerActions = document.getElementById('header-action-text');
+            if(headerActions) {
+                headerActions.innerText = tabName === 'select' ? '說明' : '相關資料與進度';
+            }
+            
+            renderCards();
+        }
+
+        function renderCards() {
+            const container = document.getElementById('card-container');
+            const emptyState = document.getElementById('empty-state');
+            const welcomeBanner = document.getElementById('welcome-banner');
+            const listHeader = document.getElementById('list-header');
+            
+            container.innerHTML = '';
+
+            // 防呆：確保 database 是陣列
+            const safeDatabase = Array.isArray(database) ? database : [];
+            let clientData = safeDatabase.filter(item => currentClientFilter === 'all' || item.client === currentClientFilter);
+
+            // 過濾邏輯：依照新的狀態字眼區分
+            const selectData = clientData.filter(item => (!item.status || item.status === '未選擇') && item.userSelected !== '選到了');
+            const progressData = clientData.filter(item => (item.status && item.status !== '未選擇') || item.userSelected === '選到了');
+
+            document.getElementById('count-select').innerText = selectData.length;
+            document.getElementById('count-progress').innerText = progressData.length;
+
+            const filteredData = currentTab === 'select' ? selectData : progressData;
+
+            if (currentClientFilter !== 'all') {
+                welcomeBanner.classList.remove('hidden');
+                document.getElementById('client-name-display').innerText = currentClientFilter;
+                document.getElementById('share-link-btn').classList.toggle('hidden', !isAdminMode);
+                if(isAdminMode) document.getElementById('share-link-btn').classList.add('sm:inline-flex');
+            } else {
+                welcomeBanner.classList.add('hidden');
+            }
+
+            if (filteredData.length === 0) {
+                emptyState.classList.remove('hidden');
+                listHeader.classList.add('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+                listHeader.classList.remove('hidden');
+                listHeader.classList.add('md:flex');
+            }
+
+            filteredData.forEach((item, index) => {
+                const isSelected = selectedIds.has(item.id);
+                
+                // 1. 左側 Checkbox 或是 狀態標籤
+                let leftColHTML = '';
+                if (currentTab === 'select') {
+                    leftColHTML = `
+                        <div class="w-6 h-6 border border-[#D5D1C8] flex items-center justify-center transition-all duration-300 ${isSelected ? 'bg-[#7A6E60] border-[#7A6E60] text-[#FAF9F6]' : 'bg-transparent group-hover:border-[#7A6E60]'}">
+                            <i class="fa-solid fa-check text-[10px] ${isSelected ? 'opacity-100' : 'opacity-0'}"></i>
+                        </div>
+                    `;
+                } else {
+                    let statusStr = item.status ? String(item.status) : '';
+                    if (!statusStr && item.userSelected === '選到了') statusStr = '等待安排';
+                    
+                    // 新版狀態顏色邏輯
+                    let statusClass = 'text-[#5C5851] border-[#D5D1C8]'; 
+                    if(statusStr.includes('規劃')) statusClass = 'text-[#7A6E60] border-[#D5D1C8]';
+                    if(statusStr.includes('剪輯')) statusClass = 'text-[#2C2926] border-[#7A6E60] font-medium';
+                    if(statusStr.includes('完成')) statusClass = 'text-[#FAF9F6] bg-[#7A6E60] border-[#7A6E60] font-medium';
+                    
+                    leftColHTML = `<span class="status-badge ${statusClass}">${statusStr}</span>`;
+                }
+
+                // 2. 標題 (隱藏客戶名稱與店家名稱，僅顯示腳本編號與標題)
+                const titleHTML = `
+                    <div class="flex-1 pr-4">
+                        <h3 class="text-[15px] md:text-base text-[#2C2926] serif-font font-medium tracking-wide leading-relaxed">
+                            ${item.scriptId ? `<span class="text-[#5C5851] text-[11px] font-normal mr-2 font-sans opacity-70">#${item.scriptId}</span>` : ''}
+                            ${item.title}
+                        </h3>
+                    </div>
+                `;
+
+                // 3. 右側操作按鈕 (手機版均分並排，桌面版靠右)
+                let actionsHTML = '';
+                if (currentTab === 'select') {
+                    actionsHTML = `
+                        <div class="flex flex-row w-full md:w-48 gap-2 shrink-0 mt-3 md:mt-0 pl-12 md:pl-0 pr-4 md:pr-0 justify-start md:justify-end">
+                            <button onclick="event.stopPropagation(); showDescModal('${item.id}')" class="ghost-btn flex-1 md:flex-none md:w-[88px] flex items-center justify-center px-1 md:px-2">
+                                重點說明
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    let outlineBtn = `<button onclick="showOutlineModal('${item.id}')" class="ghost-btn flex-1 md:flex-none md:w-[80px] flex items-center justify-center px-1 md:px-2 ${item.outline ? 'primary' : 'opacity-40 cursor-not-allowed'}">腳本大綱</button>`;
+                    let captionBtn = `<button onclick="showCaptionModal('${item.id}')" class="ghost-btn flex-1 md:flex-none md:w-[80px] flex items-center justify-center px-1 md:px-2 ${item.caption ? 'primary' : 'opacity-40 cursor-not-allowed'}">貼文文案</button>`;
+                    let videoBtn = item.videoUrl ? `<a href="${item.videoUrl}" target="_blank" class="ghost-btn flex-1 md:flex-none md:w-[100px] flex items-center justify-center px-1 md:px-2 text-[#2C2926] border-[#2C2926] font-medium"><i class="fa-solid fa-play text-[8px] mr-1.5"></i> 觀看影片</a>` : '';
+
+                    actionsHTML = `
+                        <div class="flex flex-row w-full md:w-auto md:justify-end gap-2 shrink-0 mt-3 md:mt-0 pl-12 md:pl-0 pr-4 md:pr-0">
+                            ${outlineBtn}
+                            ${captionBtn}
+                            ${videoBtn}
+                        </div>
+                    `;
+                }
+
+                const clickableAction = currentTab === 'select' ? `onclick="toggleCard('${item.id}')"` : '';
+                const cursorClass = currentTab === 'select' ? 'cursor-pointer' : '';
+                
+                const cardHTML = `
+                    <div ${clickableAction} class="list-item-hover group flex flex-col md:flex-row md:items-center py-5 px-2 border-b border-[#D5D1C8]/40 transition-all ${cursorClass}">
+                        <div class="flex items-start md:items-center gap-4 w-full md:w-auto flex-1">
+                            <div class="w-8 flex justify-center shrink-0 mt-1 md:mt-0">
+                                ${leftColHTML}
+                            </div>
+                            ${titleHTML}
+                        </div>
+
+                        ${actionsHTML}
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+
+        function toggleCard(id) {
+            if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
+            document.getElementById('selected-count').innerText = selectedIds.size;
+            renderCards(); 
+        }
+
+        function filterClient(clientName) {
+            currentClientFilter = clientName;
+            if (isAdminMode) {
+                const select = document.getElementById('client-select');
+                if(select) select.value = clientName;
+            }
+            selectedIds.clear();
+            document.getElementById('selected-count').innerText = '0';
+            renderCards();
+        }
+
+        // ==========================================
+        // 彈跳視窗 (Modal) 與文字解析邏輯
+        // ==========================================
+        const modal = document.getElementById('global-modal');
+        const modalWrapper = document.getElementById('modal-content-wrapper');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalFooter = document.getElementById('modal-footer');
+        const modalActionBtn = document.getElementById('modal-action-btn');
+
+        function openModal(title, contentHTML, actionConfig = null) {
+            modalTitle.innerText = title;
+            modalBody.innerHTML = contentHTML;
+            
+            if (actionConfig) {
+                modalFooter.classList.remove('hidden');
+                modalActionBtn.innerText = actionConfig.text;
+                modalActionBtn.onclick = actionConfig.onClick;
+            } else {
+                modalFooter.classList.add('hidden');
+            }
+
+            modal.classList.remove('hidden');
+            setTimeout(() => { modalWrapper.classList.add('modal-enter-active'); }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modalWrapper.classList.remove('modal-enter-active');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        function showDescModal(id) {
+            const item = database.find(i => i.id === id);
+            if (!item) return;
+            const content = item.desc || '（ 留白，等待故事填滿 ）';
+            openModal('重點說明', `<div class="whitespace-pre-wrap">${content}</div>`);
+        }
+
+        function showCaptionModal(id) {
+            const item = database.find(i => i.id === id);
+            if (!item || !item.caption) return; 
+            
+            const action = {
+                text: '複製文案',
+                onClick: () => { copyToClipboard(item.caption, "文案已複製"); closeModal(); }
+            };
+            openModal('貼文文案', `<div class="whitespace-pre-wrap select-all border-l-2 border-[#7A6E60] pl-4 italic text-[#5C5851]">${item.caption}</div>`, action);
+        }
+
+        function parseAndFormatPlainText(text) {
+            let lines = text.split('\n');
+            let html = '';
+            let inDialogue = false;
+            
+            lines.forEach(line => {
+                let t = line.trim();
+                if (!t) {
+                    html += '<div class="h-2"></div>'; // 保留空行
+                    return;
+                }
+                
+                if (/^(▌|■|●|◆|【)/.test(t) || /^(起|承|轉|合|開場|結尾|重點|第一幕|第二幕|第三幕)[：:]?/.test(t)) {
+                    let title = t.replace(/^(▌|■|●|◆)/, '').trim();
+                    if(!title.includes('：') && !title.includes(':')) {
+                        let keywordMatch = title.match(/^(起|承|轉|合|開場|結尾|重點|第一幕|第二幕|第三幕)/);
+                        if(keywordMatch && title.length > keywordMatch[0].length && !title.startsWith(keywordMatch[0] + ' ')) {
+                           title = title.replace(keywordMatch[0], keywordMatch[0] + '：');
+                        }
+                    }
+                    html += `<div class="text-[#2C2926] font-medium text-[15px] mt-6 mb-3 border-b border-[#D5D1C8]/60 pb-2 flex items-center gap-2"><i class="fa-solid fa-layer-group text-[12px] text-[#7A6E60]"></i> ${title}</div>`;
+                    inDialogue = false; 
+                }
+                else if (/^(➤|▶|►|- |• )/.test(t)) {
+                    let subText = t.replace(/^(➤|▶|►|- |• )/, '').trim();
+                    let icon = 'fa-caret-right';
+                    let bg = 'bg-[#FAF9F6] border border-[#D5D1C8] text-[#5C5851]';
+                    
+                    if(subText.includes('台詞') || subText.includes('語句') || subText.includes('文案')) {
+                        icon = 'fa-comment-dots';
+                        bg = 'bg-[#7A6E60]/10 text-[#7A6E60] border border-transparent';
+                        inDialogue = true;
+                    } else if (subText.includes('動作') || subText.includes('畫面') || subText.includes('視覺') || subText.includes('舉例')) {
+                        icon = 'fa-video';
+                        bg = 'bg-[#D5D1C8]/30 text-[#4A4640] border border-transparent';
+                        inDialogue = false;
+                    } else {
+                        inDialogue = false;
+                    }
+                    
+                    html += `<div class="inline-flex items-center gap-1.5 px-2 py-1 rounded-sm mt-4 mb-2 text-[11px] tracking-widest font-medium ${bg}"><i class="fa-solid ${icon}"></i> ${subText}</div>`;
+                }
+                else {
+                    if (inDialogue) {
+                        html += `<div class="pl-3 border-l-2 border-[#7A6E60]/40 text-[#5C5851] italic text-[14px] leading-loose mb-1">${t}</div>`;
+                    } else {
+                        html += `<div class="text-[#4A4640] text-[14px] font-light leading-relaxed mb-1.5">${t}</div>`;
+                    }
+                }
+            });
+            
+            return `<div class="px-2 pb-4">${html}</div>`;
+        }
+
+        function showOutlineModal(id) {
+            const item = database.find(i => i.id === id);
+            if (!item || !item.outline) return; 
+            
+            let outlineContentHTML = '';
+            let outlineData = item.outline;
+            
+            if (typeof outlineData === 'string') {
+                try {
+                    let cleaned = outlineData.trim();
+                    if (cleaned.startsWith('[')) {
+                        outlineData = JSON.parse(cleaned);
+                    }
+                } catch(e) {}
+            }
+
+            if (Array.isArray(outlineData) && outlineData.length > 0) {
+                let rows = outlineData.map(row => `
+                    <tr>
+                        <td class="font-medium whitespace-nowrap">${row.structure || row.架構 || ''}</td>
+                        <td>${(row.visual || row['畫面/動作建議'] || '').replace(/\n/g, '<br>')}</td>
+                        <td class="text-[#5C5851] italic">${row.emotion || row['情緒/表情'] || ''}</td>
+                        <td>${(row.dialogue || row['參考語句 (台詞)'] || '').replace(/\n/g, '<br>')}</td>
+                    </tr>
+                `).join('');
+
+                outlineContentHTML = `
+                    <div class="overflow-x-auto w-full">
+                        <table class="w-full text-left border-collapse min-w-[600px] minimal-table">
+                            <thead>
+                                <tr>
+                                    <th class="w-16">架構</th>
+                                    <th class="w-1/3">畫面 / 動作建議</th>
+                                    <th class="w-24">情緒 / 表情</th>
+                                    <th>參考語句 (台詞)</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                `;
+            } else {
+                outlineContentHTML = parseAndFormatPlainText(String(item.outline));
+            }
+
+            openModal('腳本大綱', outlineContentHTML);
+        }
+
+        // ==========================================
+        // 其他共用功能
+        // ==========================================
+        async function submitSelection() {
+            if (selectedIds.size === 0) { showToast("請至少選擇一個項目。"); return; }
+            
+            const btn = document.getElementById('submit-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> 處理中...`;
+            btn.disabled = true; btn.classList.add('opacity-80');
+
+            try {
+                // 送出選題，將資料 POST 給 Apps Script
+                const payload = { ids: Array.from(selectedIds) };
+                await fetch(API_URL, {
+                    method: 'POST', mode: 'no-cors', 
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(payload)
+                });
+                showToast("選擇已確實傳達。");
+                
+                // 本地端暫時更新狀態，方便即時預覽
+                database.forEach(item => { if (selectedIds.has(item.id)) item.userSelected = '選到了'; });
+                selectedIds.clear();
+                updateUI();
+                setTimeout(() => { switchTab('progress'); }, 1500);
+            } catch (error) {
+                console.error(error); showToast("連線發生異常，請重試。");
+            } finally {
+                btn.innerHTML = originalText; btn.disabled = false; btn.classList.remove('opacity-80');
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('selected-count').innerText = selectedIds.size;
+            renderCards(); 
+        }
+
+        function copyClientLink() {
+            if (currentClientFilter === 'all') return;
+            const baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            copyToClipboard(`${baseUrl}?client=${currentClientFilter}`, "專屬連結已複製");
+        }
+
+        function copyToClipboard(text, msg = "已複製。") {
+            navigator.clipboard.writeText(text).then(() => { showToast(msg); }).catch(err => alert('複製失敗'));
+        }
+
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            toast.innerText = text;
+            toast.style.transform = "translate(-50%, 15px)";
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => { toast.style.transform = "translate(-50%, 0)"; }, 10);
+            setTimeout(() => { 
+                toast.classList.add('opacity-0', 'pointer-events-none'); 
+                toast.style.transform = "translate(-50%, 15px)";
+            }, 3000);
+        }
+
+        function updateStatus(isOnline) {
+            const badge = document.getElementById('status-badge');
+            if(isOnline) {
+                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-[#7A6E60] mr-2"></span> 狀態良好`;
+            } else {
+                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full border border-[#7A6E60] mr-2 animate-pulse"></span> 演示模式`;
+            }
+        }
+
+        function useFallbackData() {
+            database = [
+                { 
+                    id: "G001-01", scriptId: "S-101", storeName: "中山店", client: "知行者學院", editor: "Ariel", 
+                    title: "深蹲膝蓋痛？不是姿勢錯，是肌肉『罷工』了！", desc: "展示一個簡單的自測動作。\n點出大腿前側萎縮才是原因。", 
+                    status: "已完成", 
+                    outline: "起：(春夏秋冬四季人)\n你知道有春夏秋冬四種人嗎?\n\n承：(舉例春天人)\n每個人都有自己的季節，每個季節有適合的顏色\n你(拍攝者)就適合春天，暖色系的類型\n簡易分辨_膚色，瞳孔，配件\n\n轉：(適合和不適合春天人的髮色)\n適合的髮色：(提供照片)\n不適合的髮色：(提供照片)\n\n合：(呼籲預約)\n不知道自己是哪個我來幫你看" 
+                },
+                { 
+                    id: "G001-02", scriptId: "S-102", storeName: "信義店", client: "知行者學院", editor: "Jason", 
+                    title: "春季限定：櫻花拿鐵隱藏點法", desc: "以極簡鏡頭拍攝櫻花落下的畫面，帶入飲品特寫。", 
+                    status: "剪輯中" 
+                },
+                { 
+                    id: "G001-03", scriptId: "S-103", storeName: "大安店", client: "知行者學院", editor: "Kiki", 
+                    title: "洗碗工還是貴婦？一秒惹怒客人的老公", desc: "透過沙龍理髮的日常對話，展現出自信與霸氣的態度。", 
+                    status: "規劃中", caption: "褪去浮華，留下純粹。\n一個好的器物，不張揚，卻能在每一個清晨，安靜地承載你的日常。\n\n#極簡生活 #晨間儀式", videoUrl: "https://www.youtube.com" 
+                }
+            ];
+            
+            setTimeout(() => {
+                if(isAdminMode) {
+                    const select = document.getElementById('client-select');
+                    select.value = "知行者學院"; filterClient("知行者學院");
+                }
+            }, 500);
+        }
+    </script>
+</body>
+</html>
