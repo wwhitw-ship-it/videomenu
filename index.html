@@ -147,7 +147,6 @@
                             <i class="fa-solid fa-arrow-right-long"></i>
                         </button>
                     </div>
-                    <p id="login-error" class="text-red-500 text-xs mt-4 font-light hidden tracking-wide">通行碼錯誤，請重試</p>
                 </div>
             </div>
         </div>
@@ -158,7 +157,7 @@
         <div class="max-w-4xl mx-auto px-6">
             <div class="flex justify-between items-end mb-6">
                 <h1 class="text-xl md:text-2xl tracking-[0.1em] flex items-center text-[#2C2926] serif-font font-normal">
-                    <span id="header-title">RENATA 社群影音沙龍</span>
+                    RENATA 社群影音沙龍
                 </h1>
                 <span id="status-badge" class="text-[10px] text-[#7A6E60] tracking-widest flex items-center font-light">
                     <span class="w-1.5 h-1.5 rounded-full bg-[#7A6E60] mr-2"></span> 讀取中
@@ -179,17 +178,17 @@
             </div>
 
             <div class="flex mt-2 gap-8 border-b border-[#D5D1C8]/50">
-                <button onclick="switchTab('select')" id="tab-select" class="pb-3 text-sm tab-active transition-all relative flex items-center justify-center gap-2 tracking-widest">
+                <button onclick="switchTab('select')" id="tab-select" class="pb-3 text-sm tab-active transition-all relative flex items-center justify-center gap-2 tracking-widest uppercase">
                     我要選題 <span id="count-select" class="text-[#7A6E60] text-[10px] font-medium">0</span>
                 </button>
-                <button onclick="switchTab('progress')" id="tab-progress" class="pb-3 text-sm tab-inactive transition-all relative flex items-center justify-center gap-2 tracking-widest">
+                <button onclick="switchTab('progress')" id="tab-progress" class="pb-3 text-sm tab-inactive transition-all relative flex items-center justify-center gap-2 tracking-widest uppercase">
                     製作進度 <span id="count-progress" class="text-[#5C5851] text-[10px] font-medium">0</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 歡迎詞 -->
+    <!-- 歡迎詞區塊 -->
     <div id="welcome-banner" class="max-w-4xl mx-auto px-6 mt-10 mb-6 hidden">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
@@ -206,15 +205,10 @@
 
     <!-- 主要內容區 -->
     <div class="max-w-4xl mx-auto px-6 mt-6 transition-all duration-500 pb-20">
-        <div id="list-header" class="hidden md:flex items-center gap-4 py-2 border-b-2 border-[#D5D1C8] mb-2 px-2">
-            <div class="w-8"></div>
-            <div class="flex-1 text-[11px] text-[#5C5851] tracking-widest font-medium">主題名稱</div>
-            <div id="header-action-text" class="w-64 text-right text-[11px] text-[#5C5851] tracking-widest pr-2 font-medium">說明</div>
-        </div>
         <div id="card-container" class="flex flex-col"></div>
     </div>
 
-    <!-- 彈跳視窗 -->
+    <!-- 彈跳視窗 (Modal) -->
     <div id="global-modal" class="fixed inset-0 z-[60] hidden">
         <div class="absolute inset-0 bg-[#2C2926]/40 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4 md:p-6 pointer-events-none">
@@ -247,7 +241,7 @@
         <div class="max-w-4xl mx-auto px-0 pointer-events-auto">
             <div class="bg-[#FAF9F6]/95 backdrop-blur-md border-t border-[#D5D1C8] px-6 py-4 flex items-center justify-between gap-6 shadow-[0_-10px_30px_rgba(250,249,246,0.8)]">
                 <div class="flex items-center gap-4">
-                    <span class="text-[11px] text-[#5C5851] tracking-[0.2em] font-medium">已選</span>
+                    <span class="text-[11px] text-[#5C5851] tracking-[0.2em] font-medium uppercase">已選項目</span>
                     <span id="selected-count" class="text-xl text-[#7A6E60] font-medium serif-font w-4 text-center">0</span>
                 </div>
                 <button onclick="submitSelection()" id="submit-btn" class="max-w-[200px] w-full bg-[#7A6E60] text-[#FAF9F6] hover:bg-[#5C5851] py-3 px-6 transition-all text-[12px] tracking-widest font-medium">
@@ -264,7 +258,7 @@
         const API_URL = "https://script.google.com/macros/s/AKfycby2ZzPf5pgHLp1V68v4DVPTAfbkmEAs3Nl4LTLYAoOqS_ilbKvNY5LplSwmkX0h_aY9FA/exec"; 
 
         let database = [];
-        let selectedIds = new Set();
+        let selectedIds = new Set(); 
         let currentClientFilter = 'all';
         let isAdminMode = false;
         let currentTab = 'select';
@@ -301,9 +295,7 @@
 
         async function submitAdminLogin() {
             const input = document.getElementById('admin-pass');
-            const errorMsg = document.getElementById('login-error');
             if (input.value === "8888") {
-                errorMsg.classList.add('hidden');
                 document.getElementById('access-gate').classList.add('hidden');
                 document.getElementById('main-nav').style.display = 'block';
                 document.getElementById('loading-overlay').style.display = 'flex';
@@ -313,38 +305,28 @@
                 renderCards();
                 switchTab('select');
             } else {
-                errorMsg.classList.remove('hidden');
+                showToast("通行碼錯誤");
                 input.value = ""; input.focus();
             }
         }
         
-        document.getElementById('admin-pass')?.addEventListener('keypress', e => { if(e.key === 'Enter') submitAdminLogin(); });
-
         async function fetchData() {
             try {
-                if(!API_URL.startsWith("https://script.google.com")) throw new Error("API URL尚未設定");
                 const response = await fetch(API_URL);
-                const contentType = response.headers.get("content-type");
-                if (contentType && contentType.includes("text/html")) throw new Error("Apps Script 權限錯誤，請檢查部署設定。");
-                if (!response.ok) throw new Error(`網路回應錯誤 (${response.status})`);
                 const rawData = await response.json();
                 
                 if (Array.isArray(rawData)) {
                     database = rawData.map((item, index) => {
-                        item._uid = item.scriptId ? String(item.scriptId) : `${item.id}_${index}`;
+                        // 強制以 scriptId (F欄) 作為唯一 ID
+                        item._uid = item.scriptId ? String(item.scriptId).trim() : `temp_${index}`;
                         return item;
                     });
-                } else if (rawData.error) {
-                    throw new Error(rawData.error);
-                } else {
-                    database = [];
                 }
                 updateStatus(true);
             } catch (error) {
-                console.error("資料抓取失敗:", error);
-                showToast(`無法取得資料: ${error.message}`);
-                useFallbackData();
                 updateStatus(false);
+                showToast("連線異常，已載入暫存資料");
+                useFallbackData();
             } finally {
                 setTimeout(() => {
                     document.getElementById('loading-overlay').style.opacity = '0';
@@ -355,37 +337,22 @@
 
         function generateClientOptions() {
             const select = document.getElementById('client-select');
-            const safeDatabase = Array.isArray(database) ? database : [];
-            const clients = [...new Set(safeDatabase
+            const clients = [...new Set(database
                 .filter(item => item.client || item.storeName)
-                .map(item => {
-                    if (item.client && item.storeName) return `${item.client} - ${item.storeName}`;
-                    return item.client || item.storeName;
-                })
+                .map(item => (item.client && item.storeName) ? `${item.client} - ${item.storeName}` : (item.client || item.storeName))
             )];
+
             select.innerHTML = '<option value="all">顯示全部</option>';
-            clients.forEach(clientCombo => {
-                const option = document.createElement('option');
-                option.value = clientCombo; 
-                option.innerText = clientCombo;
-                select.appendChild(option);
-            });
+            clients.forEach(c => select.innerHTML += `<option value="${c}">${c}</option>`);
         }
 
         function switchTab(tabName) {
             currentTab = tabName;
             ['select', 'progress'].forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
-                if (t === tabName) { btn.classList.add('tab-active'); btn.classList.remove('tab-inactive'); } 
-                else { btn.classList.remove('tab-active'); btn.classList.add('tab-inactive'); }
+                t === tabName ? btn.classList.add('tab-active') : btn.classList.remove('tab-active');
             });
-            
-            // 同步顯示底部操作列
             updateActionBarVisibility();
-            
-            const headerActions = document.getElementById('header-action-text');
-            if(headerActions) headerActions.innerText = tabName === 'select' ? '說明' : '相關資料與進度';
-            
             renderCards();
         }
 
@@ -393,7 +360,7 @@
             const bar = document.getElementById('action-bar');
             if (currentTab === 'select' && selectedIds.size > 0) {
                 bar.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-full');
-                bar.classList.add('translate-y-0');
+                bar.classList.add('translate-y-0', 'opacity-100');
             } else {
                 bar.classList.add('opacity-0', 'pointer-events-none', 'translate-y-full');
                 bar.classList.remove('translate-y-0');
@@ -403,15 +370,12 @@
         function renderCards() {
             const container = document.getElementById('card-container');
             const emptyState = document.getElementById('empty-state');
-            const welcomeBanner = document.getElementById('welcome-banner');
-            const listHeader = document.getElementById('list-header');
             container.innerHTML = '';
 
-            const safeDatabase = Array.isArray(database) ? database : [];
-            let clientData = safeDatabase.filter(item => {
+            let clientData = database.filter(item => {
                 if (currentClientFilter === 'all') return true;
-                let comboName = (item.client && item.storeName) ? `${item.client} - ${item.storeName}` : (item.client || item.storeName || '');
-                return comboName === currentClientFilter;
+                let combo = (item.client && item.storeName) ? `${item.client} - ${item.storeName}` : (item.client || item.storeName || '');
+                return combo === currentClientFilter;
             });
 
             const selectData = clientData.filter(item => (!item.status || item.status === '未選擇') && item.userSelected !== '選到了');
@@ -420,214 +384,132 @@
             document.getElementById('count-select').innerText = selectData.length;
             document.getElementById('count-progress').innerText = progressData.length;
 
-            const filteredData = currentTab === 'select' ? selectData : progressData;
-
             if (currentClientFilter !== 'all') {
-                welcomeBanner.classList.remove('hidden');
+                document.getElementById('welcome-banner').classList.remove('hidden');
                 document.getElementById('client-name-display').innerText = currentClientFilter;
-                document.getElementById('share-link-btn').classList.toggle('hidden', !isAdminMode);
-            } else {
-                welcomeBanner.classList.add('hidden');
             }
 
+            const filteredData = currentTab === 'select' ? selectData : progressData;
+            
             if (filteredData.length === 0) {
                 emptyState.classList.remove('hidden');
-                listHeader.classList.add('hidden');
                 return;
-            } else {
-                emptyState.classList.add('hidden');
-                listHeader.classList.remove('hidden');
             }
+            emptyState.classList.add('hidden');
 
             filteredData.forEach((item) => {
                 const isSelected = selectedIds.has(item._uid);
                 let leftColHTML = '';
                 if (currentTab === 'select') {
-                    leftColHTML = `
-                        <div class="w-6 h-6 border border-[#D5D1C8] flex items-center justify-center transition-all duration-300 ${isSelected ? 'bg-[#7A6E60] border-[#7A6E60] text-[#FAF9F6]' : 'bg-transparent group-hover:border-[#7A6E60]'}">
-                            <i class="fa-solid fa-check text-[10px] ${isSelected ? 'opacity-100' : 'opacity-0'}"></i>
-                        </div>
-                    `;
+                    leftColHTML = `<div class="w-6 h-6 border border-[#D5D1C8] flex items-center justify-center transition-all ${isSelected ? 'bg-[#7A6E60] border-[#7A6E60] text-white' : ''}"><i class="fa-solid fa-check text-[10px] ${isSelected ? '' : 'opacity-0'}"></i></div>`;
                 } else {
                     let statusStr = item.status || (item.userSelected === '選到了' ? '等待安排' : '');
-                    let statusClass = 'text-[#5C5851] border-[#D5D1C8]'; 
-                    if(statusStr.includes('規劃')) statusClass = 'text-[#7A6E60] border-[#D5D1C8]';
-                    if(statusStr.includes('剪輯')) statusClass = 'text-[#2C2926] border-[#7A6E60] font-medium';
-                    if(statusStr.includes('完成')) statusClass = 'text-[#FAF9F6] bg-[#7A6E60] border-[#7A6E60] font-medium';
-                    leftColHTML = `<span class="status-badge ${statusClass}">${statusStr}</span>`;
+                    leftColHTML = `<span class="status-badge ${statusStr.includes('完成') ? 'bg-[#7A6E60] text-white' : 'border-[#D5D1C8] text-[#7A6E60]'}">${statusStr}</span>`;
                 }
 
-                const titleHTML = `
-                    <div class="flex-1 pr-4">
-                        <h3 class="text-[15px] md:text-base text-[#2C2926] serif-font font-medium tracking-wide leading-relaxed">
-                            ${item.scriptId ? `<span class="text-[#5C5851] text-[11px] font-normal mr-2 font-sans opacity-70">#${item.scriptId}</span>` : ''}
-                            ${item.title}
-                        </h3>
-                    </div>
-                `;
+                let actionsHTML = currentTab === 'select' ? 
+                    `<button onclick="event.stopPropagation(); showDescModal('${item.id}')" class="ghost-btn px-4">重點說明</button>` :
+                    `<div class="flex gap-2">
+                        <button onclick="showOutlineModal('${item.id}')" class="ghost-btn ${item.outline ? 'primary' : 'opacity-40'}">腳本大綱</button>
+                        <button onclick="showCaptionModal('${item.id}')" class="ghost-btn ${item.caption ? 'primary' : 'opacity-40'}">貼文文案</button>
+                        ${item.videoUrl ? `<a href="${item.videoUrl}" target="_blank" class="ghost-btn primary">觀看影片</a>` : ''}
+                    </div>`;
 
-                let actionsHTML = '';
-                if (currentTab === 'select') {
-                    actionsHTML = `
-                        <div class="flex flex-row w-full md:w-48 gap-2 shrink-0 mt-3 md:mt-0 pl-10 md:pl-0 pr-4 md:pr-0 justify-start md:justify-end">
-                            <button onclick="event.stopPropagation(); showDescModal('${item.id}')" class="ghost-btn flex-1 md:flex-none md:w-[88px] flex items-center justify-center px-1 md:px-2">重點說明</button>
+                container.innerHTML += `
+                    <div onclick="${currentTab === 'select' ? `toggleCard('${item._uid}')` : ''}" class="list-item-hover flex flex-col md:flex-row md:items-center py-5 px-2 border-b border-[#D5D1C8]/40 ${currentTab === 'select' ? 'cursor-pointer' : ''}">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div class="w-10 flex justify-center">${leftColHTML}</div>
+                            <h3 class="text-[15px] serif-font">${item.scriptId ? `<span class="text-[11px] text-[#5C5851] mr-2">#${item.scriptId}</span>` : ''}${item.title}</h3>
                         </div>
-                    `;
-                } else {
-                    actionsHTML = `
-                        <div class="flex flex-row w-full md:w-auto md:justify-end gap-2 shrink-0 mt-3 md:mt-0 pl-10 md:pl-0 pr-4 md:pr-0">
-                            <button onclick="showOutlineModal('${item.id}')" class="ghost-btn flex-1 md:flex-none md:w-[80px] flex items-center justify-center px-1 md:px-2 ${item.outline ? 'primary' : 'opacity-40 cursor-not-allowed'}">腳本大綱</button>
-                            <button onclick="showCaptionModal('${item.id}')" class="ghost-btn flex-1 md:flex-none md:w-[80px] flex items-center justify-center px-1 md:px-2 ${item.caption ? 'primary' : 'opacity-40 cursor-not-allowed'}">貼文文案</button>
-                            ${item.videoUrl ? `<a href="${item.videoUrl}" target="_blank" class="ghost-btn flex-1 md:flex-none md:w-[100px] flex items-center justify-center px-1 md:px-2 text-[#2C2926] border-[#2C2926] font-medium"><i class="fa-solid fa-play text-[8px] mr-1.5"></i> 觀看影片</a>` : ''}
-                        </div>
-                    `;
-                }
-
-                const clickableAction = currentTab === 'select' ? `onclick="toggleCard('${item._uid}')"` : '';
-                const cardHTML = `
-                    <div ${clickableAction} class="list-item-hover group flex flex-col md:flex-row md:items-center py-5 px-2 border-b border-[#D5D1C8]/40 transition-all ${currentTab === 'select' ? 'cursor-pointer' : ''}">
-                        <div class="flex items-start md:items-center gap-4 w-full md:w-auto flex-1">
-                            <div class="w-8 flex justify-center shrink-0 mt-1 md:mt-0">${leftColHTML}</div>
-                            ${titleHTML}
-                        </div>
-                        ${actionsHTML}
-                    </div>
-                `;
-                container.innerHTML += cardHTML;
+                        <div class="mt-4 md:mt-0 pl-14 md:pl-0">${actionsHTML}</div>
+                    </div>`;
             });
         }
 
         function toggleCard(uid) {
-            if (selectedIds.has(uid)) selectedIds.delete(uid); else selectedIds.add(uid);
+            selectedIds.has(uid) ? selectedIds.delete(uid) : selectedIds.add(uid);
             document.getElementById('selected-count').innerText = selectedIds.size;
             updateActionBarVisibility();
             renderCards(); 
         }
 
-        function filterClient(clientName) {
-            currentClientFilter = clientName;
-            if (isAdminMode) {
-                const select = document.getElementById('client-select');
-                if(select) select.value = clientName;
-            }
+        function filterClient(val) {
+            currentClientFilter = val;
             selectedIds.clear();
-            updateActionBarVisibility();
-            renderCards();
+            switchTab('select');
         }
 
-        const modal = document.getElementById('global-modal');
-        const modalWrapper = document.getElementById('modal-content-wrapper');
-        const modalTitle = document.getElementById('modal-title');
-        const modalBody = document.getElementById('modal-body');
-        const modalFooter = document.getElementById('modal-footer');
-        const modalActionBtn = document.getElementById('modal-action-btn');
+        async function submitSelection() {
+            const btn = document.getElementById('submit-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> 傳送中...`;
+            btn.disabled = true;
 
-        function openModal(title, contentHTML, actionConfig = null) {
-            modalTitle.innerText = title;
-            modalBody.innerHTML = contentHTML;
-            if (actionConfig) {
-                modalFooter.classList.remove('hidden');
-                modalActionBtn.innerText = actionConfig.text;
-                modalActionBtn.onclick = actionConfig.onClick;
-            } else { modalFooter.classList.add('hidden'); }
-            modal.classList.remove('hidden');
-            setTimeout(() => { modalWrapper.classList.add('modal-enter-active'); }, 10);
-            document.body.style.overflow = 'hidden';
+            try {
+                // 傳送 uid (即 scriptId) 給後台
+                const payload = { ids: Array.from(selectedIds) };
+                await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                
+                showToast("選擇已傳送至資料庫");
+                database.forEach(i => { if(selectedIds.has(i._uid)) i.userSelected = '選到了'; });
+                selectedIds.clear();
+                updateActionBarVisibility();
+                setTimeout(() => switchTab('progress'), 1200);
+            } catch (e) {
+                showToast("提交失敗");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
-        function closeModal() {
-            modalWrapper.classList.remove('modal-enter-active');
-            setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = ''; }, 300);
+        function showToast(m) {
+            const t = document.getElementById('toast');
+            t.innerText = m; t.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => t.classList.add('opacity-0', 'pointer-events-none'), 4000);
         }
 
         function showDescModal(id) {
             const item = database.find(i => i.id === id);
-            if (item) openModal('重點說明', `<div class="whitespace-pre-wrap">${item.desc || '（ 留白，等待故事填滿 ）'}</div>`);
+            if (item) openModal('重點說明', `<div class="whitespace-pre-wrap">${item.desc || '（尚未提供說明）'}</div>`);
         }
 
         function showCaptionModal(id) {
             const item = database.find(i => i.id === id);
             if (item && item.caption) {
-                const action = { text: '複製文案', onClick: () => { copyToClipboard(item.caption, "文案已複製"); closeModal(); } };
-                openModal('貼文文案', `<div class="whitespace-pre-wrap select-all border-l-2 border-[#7A6E60] pl-4 italic text-[#5C5851]">${item.caption}</div>`, action);
+                const action = { text: '複製文案', onClick: () => { navigator.clipboard.writeText(item.caption); showToast("文案已複製"); closeModal(); } };
+                openModal('貼文文案', `<div class="whitespace-pre-wrap select-all italic text-[#5C5851]">${item.caption}</div>`, action);
             }
-        }
-
-        function parseAndFormatPlainText(text) {
-            let lines = text.split('\n'), html = '', inDialogue = false;
-            lines.forEach(line => {
-                let t = line.trim();
-                if (!t) { html += '<div class="h-2"></div>'; return; }
-                if (/^(▌|■|●|◆|【)/.test(t) || /^(起|承|轉|合|開場|結尾|重點|第一幕|第二幕|第三幕)[：:]?/.test(t)) {
-                    let title = t.replace(/^(▌|■|●|◆)/, '').trim();
-                    html += `<div class="text-[#2C2926] font-medium text-[15px] mt-6 mb-3 border-b border-[#D5D1C8]/60 pb-2 flex items-center gap-2"><i class="fa-solid fa-layer-group text-[12px] text-[#7A6E60]"></i> ${title}</div>`;
-                    inDialogue = false; 
-                } else if (/^(➤|▶|►|- |• )/.test(t)) {
-                    let subText = t.replace(/^(➤|▶|►|- |• )/, '').trim();
-                    let icon = (subText.includes('台詞') || subText.includes('語句')) ? 'fa-comment-dots' : 'fa-video';
-                    let bg = (subText.includes('台詞') || subText.includes('語句')) ? 'bg-[#7A6E60]/10 text-[#7A6E60]' : 'bg-[#D5D1C8]/30 text-[#4A4640]';
-                    inDialogue = (subText.includes('台詞') || subText.includes('語句'));
-                    html += `<div class="inline-flex items-center gap-1.5 px-2 py-1 rounded-sm mt-4 mb-2 text-[11px] tracking-widest font-medium ${bg}"><i class="fa-solid ${icon}"></i> ${subText}</div>`;
-                } else {
-                    if (inDialogue) html += `<div class="pl-3 border-l-2 border-[#7A6E60]/40 text-[#5C5851] italic text-[14px] leading-loose mb-1">${t}</div>`;
-                    else html += `<div class="text-[#4A4640] text-[14px] font-light leading-relaxed mb-1.5">${t}</div>`;
-                }
-            });
-            return `<div class="px-2 pb-4">${html}</div>`;
         }
 
         function showOutlineModal(id) {
             const item = database.find(i => i.id === id);
-            if (!item || !item.outline) return; 
-            openModal('腳本大綱', parseAndFormatPlainText(String(item.outline)));
+            if (item && item.outline) openModal('腳本大綱', `<div class="whitespace-pre-wrap font-light">${item.outline}</div>`);
         }
 
-        async function submitSelection() {
-            if (selectedIds.size === 0) return;
-            const btn = document.getElementById('submit-btn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> 處理中...`;
-            btn.disabled = true;
-
-            try {
-                const payload = { ids: Array.from(selectedIds).map(uid => {
-                    const target = database.find(i => i._uid === uid);
-                    return target ? (target.scriptId || target.id) : uid;
-                }) };
-
-                await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                showToast("選擇已確實傳達至資料庫。");
-                database.forEach(item => { if (selectedIds.has(item._uid)) item.userSelected = '選到了'; });
-                selectedIds.clear();
-                updateActionBarVisibility();
-                renderCards();
-                setTimeout(() => switchTab('progress'), 1500);
-            } catch (error) {
-                console.error(error); showToast("連線異常，請稍後再試。");
-            } finally {
-                btn.innerHTML = originalText; btn.disabled = false;
-            }
+        function openModal(t, b, a) {
+            document.getElementById('modal-title').innerText = t;
+            document.getElementById('modal-body').innerHTML = b;
+            const f = document.getElementById('modal-footer');
+            if (a) { f.classList.remove('hidden'); const btn = document.getElementById('modal-action-btn'); btn.innerText = a.text; btn.onclick = a.onClick; }
+            else f.classList.add('hidden');
+            document.getElementById('global-modal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('modal-content-wrapper').classList.add('modal-enter-active'), 10);
         }
 
-        function copyToClipboard(text, msg = "已複製。") {
-            navigator.clipboard.writeText(text).then(() => showToast(msg)).catch(() => alert('複製失敗'));
+        function closeModal() {
+            document.getElementById('modal-content-wrapper').classList.remove('modal-enter-active');
+            setTimeout(() => document.getElementById('global-modal').classList.add('hidden'), 300);
         }
 
-        function showToast(text) {
-            const toast = document.getElementById('toast');
-            toast.innerHTML = text;
-            toast.classList.remove('opacity-0', 'pointer-events-none');
-            setTimeout(() => toast.classList.add('opacity-0', 'pointer-events-none'), 4000);
-        }
-
-        function updateStatus(isOnline) {
-            const badge = document.getElementById('status-badge');
-            badge.innerHTML = isOnline ? `<span class="w-1.5 h-1.5 rounded-full bg-[#7A6E60] mr-2"></span> 狀態良好` : `<span class="w-1.5 h-1.5 rounded-full border border-[#7A6E60] mr-2 animate-pulse"></span> 演示模式`;
+        function updateStatus(on) {
+            document.getElementById('status-badge').innerHTML = on ? `<span class="w-1.5 h-1.5 rounded-full bg-[#7A6E60] mr-2"></span> 狀態良好` : `<span class="w-1.5 h-1.5 rounded-full border border-[#7A6E60] mr-2 animate-pulse"></span> 離線模式`;
         }
 
         function useFallbackData() {
-            database = [{ id: "G001-01", scriptId: "S-101", storeName: "中山店", client: "知行者學院", title: "深蹲膝蓋痛？", status: "已完成", outline: "起：(四季人)\n你知道有春夏秋冬四種人嗎?" }];
-            database.forEach((item, index) => { item._uid = item.scriptId || `uid_${index}`; });
+            database = [{ id: "G001", scriptId: "S101", client: "毛貴人", title: "範例主題", status: "未選擇", outline: "範例大綱" }];
+            database.forEach(i => i._uid = i.scriptId);
+            renderCards();
         }
     </script>
 </body>
